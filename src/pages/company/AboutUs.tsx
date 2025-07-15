@@ -60,39 +60,37 @@ export const AboutUs: React.FC = () => {
       subtitle="Revolutionizing education through artificial intelligence and human-centered design"
     >
       {/* Our Story */}
-      <section className="mb-16">
-        <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Story</h2>
-              <div className="prose prose-lg text-gray-600">
-                <p className="mb-4">
-                  YUGA AI was born from a simple yet powerful vision: to make personalized, high-quality education 
-                  accessible to everyone, everywhere. Founded in 2023 by a team of AI researchers, educators, and 
-                  technologists, we recognized that traditional one-size-fits-all education was failing millions of learners.
-                </p>
-                <p className="mb-4">
-                  Our breakthrough came when we developed the first truly interactive AI avatar that could adapt its 
-                  teaching style in real-time based on individual learning patterns. This wasn't just another chatbot – 
-                  it was a revolutionary approach to personalized education that could understand, empathize, and evolve 
-                  with each student.
-                </p>
-                <p>
-                  Today, YUGA AI serves over 100,000 learners worldwide, with our AI tutors delivering millions of 
-                  personalized lessons across dozens of subjects. We're not just changing how people learn – 
-                  we're transforming lives, one student at a time.
-                </p>
-              </div>
-            </div>
-            <div className="flex justify-center">
-              <div className="relative">
-                <AIAvatar size="xl" emotion="teaching" isActive />
-                <div className="absolute -inset-4 bg-gradient-to-r from-purple-400 via-indigo-400 to-cyan-400 rounded-full opacity-20 animate-pulse"></div>
-              </div>
-            </div>
-          </div>
+     <section className="mb-16">
+  <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div>
+        <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>
+        <div className="prose prose-lg text-gray-600">
+          <p className="mb-4">
+            At YUGA AI (Navodhan Ed. Tech. Pvt. Ltd.), our AI tutor brings a new era of personalized education. It adapts to
+            every student’s capabilities and affinities—combining erudition, patience, and compassion in any subject, in any
+            language.
+          </p>
+          <p className="mb-4">
+            Our AI teacher isn’t just interactive—it’s globally capable of teaching any academic field with depth and empathy,
+            truly transforming how learning happens.
+          </p>
+          <p>
+            Founded in 2024 and headquartered in Thiruvananthapuram, Kerala, we're a small but passionate team (2–10 employees)
+            dedicated to building innovative EdTech solutions powered by AI, LLMs, AR/VR, smart-class devices, and OCR.
+          </p>
         </div>
-      </section>
+      </div>
+      <div className="flex justify-center">
+        <div className="relative">
+          <AIAvatar size="xl" emotion="teaching" isActive />
+          <div className="absolute -inset-4 bg-gradient-to-r from-purple-400 via-indigo-400 to-cyan-400 rounded-full opacity-20 animate-pulse"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 
       {/* Our Values */}
       <section className="mb-16">
