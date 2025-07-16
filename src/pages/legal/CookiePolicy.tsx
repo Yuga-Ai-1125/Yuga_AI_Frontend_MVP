@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Cookie, Settings, Eye, BarChart3, Shield, Globe } from 'lucide-react';
 import { PageLayout } from '../../components/layout/PageLayout';
 
+
 export const CookiePolicy: React.FC = () => {
   const [cookiePreferences, setCookiePreferences] = useState({
     necessary: true,

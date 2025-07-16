@@ -14,13 +14,24 @@ import {
   X,
   Search,
   Bell,
-  User,
   HelpCircle,
   RefreshCw,
   Trophy,
   Notebook,
   Video,
   Image,
+  Briefcase,
+  Calculator,
+  FlaskConical,
+  Globe,
+  Languages,
+  Circle,
+  User,
+  ClipboardList,
+  Compass,
+  Cpu,
+  Code,
+  Dna,
 } from "lucide-react";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { AuthModal } from "./components/auth/AuthModal";
@@ -55,7 +66,7 @@ import { TermsOfService } from "./pages/legal/TermsOfService";
 import { CookiePolicy } from "./pages/legal/CookiePolicy";
 import { GDPR } from "./pages/legal/GDPR";
 
-type ActiveView = "dashboard" | "notes" | "exercises" | "certificate" | "revision" | "media";
+type ActiveView = "dashboard" | "notes" | "exercises" | "career-guide" | "certificate" | "revision" | "media";
 
 function MainApp() {
   const { user, isAuthenticated } = useAuth();
@@ -82,30 +93,35 @@ function MainApp() {
     return <OnboardingFlow onComplete={() => setShowOnboarding(false)} />;
   }
 
-  const navigation = [
-    {
-      id: "dashboard",
-      label: "Dashboard",
-      icon: <BarChart3 className="w-5 h-5" />,
-    },
-    { id: "notes", label: "Notes", icon: <Notebook className="w-5 h-5" /> },
-    { id: "media", label: "Media", icon: <Video className="w-5 h-5" /> },
-    {
-      id: "exercises",
-      label: "Exercises with OCR",
-      icon: <BookOpen className="w-5 h-5" />,
-    },
-    {
-      id: "certificate",
-      label: "Champion Certificate",
-      icon: <Trophy className="w-5 h-5" />,
-    },
-    {
-      id: "revision",
-      label: "Revision",
-      icon: <RefreshCw className="w-5 h-5" />,
-    },
-  ];
+ const navigation = [
+  {
+    id: "dashboard",
+    label: "Dashboard",
+    icon: <BarChart3 className="w-5 h-5" />,
+  },
+  { id: "notes", label: "Notes", icon: <Notebook className="w-5 h-5" /> },
+  { id: "media", label: "Media", icon: <Video className="w-5 h-5" /> },
+  {
+    id: "exercises",
+    label: "Exercises with OCR",
+    icon: <BookOpen className="w-5 h-5" />,
+  },
+  {
+    id: "certificate",
+    label: "Champion Certificate",
+    icon: <Trophy className="w-5 h-5" />,
+  },
+  {
+    id: "revision",
+    label: "Revision",
+    icon: <RefreshCw className="w-5 h-5" />,
+  },
+  {
+    id: "career-guide",
+    label: "AI Career Guide",
+    icon: <Briefcase className="w-5 h-5" />, // You'll need to import Briefcase from lucide-react
+  },
+];
 
   const handleAuthAction = (mode: "login" | "signup") => {
     setAuthModalMode(mode);
@@ -743,6 +759,227 @@ function MainApp() {
             </div>
           </div>
         );
+       case "career-guide":
+  return (
+    <div>
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          AI Career Guide (NCERT 10th)
+        </h1>
+        <p className="text-gray-600">
+          Discover career paths based on your favorite NCERT 10th subjects
+        </p>
+      </div>
+
+      {/* Subject-based Career Paths */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {/* Mathematics */}
+        <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-600">
+          <div className="flex items-center mb-3">
+            <Calculator className="w-6 h-6 text-purple-600 mr-2" />
+            <h2 className="text-lg font-bold text-gray-900">Mathematics</h2>
+          </div>
+          <p className="text-gray-600 mb-4 text-sm">
+            Careers for students strong in algebra, geometry, and statistics
+          </p>
+          <div className="space-y-2">
+            <div className="flex items-center">
+              <Circle className="w-2 h-2 text-purple-600 mr-2" />
+              <span className="text-sm">Data Scientist</span>
+            </div>
+            <div className="flex items-center">
+              <Circle className="w-2 h-2 text-purple-600 mr-2" />
+              <span className="text-sm">Actuary</span>
+            </div>
+            <div className="flex items-center">
+              <Circle className="w-2 h-2 text-purple-600 mr-2" />
+              <span className="text-sm">AI Engineer</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Science */}
+        <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-600">
+          <div className="flex items-center mb-3">
+            <FlaskConical className="w-6 h-6 text-green-600 mr-2" />
+            <h2 className="text-lg font-bold text-gray-900">Science</h2>
+          </div>
+          <p className="text-gray-600 mb-4 text-sm">
+            Careers in physics, chemistry, and biology
+          </p>
+          <div className="space-y-2">
+            <div className="flex items-center">
+              <Circle className="w-2 h-2 text-green-600 mr-2" />
+              <span className="text-sm">Biotechnologist</span>
+            </div>
+            <div className="flex items-center">
+              <Circle className="w-2 h-2 text-green-600 mr-2" />
+              <span className="text-sm">Environmental Scientist</span>
+            </div>
+            <div className="flex items-center">
+              <Circle className="w-2 h-2 text-green-600 mr-2" />
+              <span className="text-sm">Medical Researcher</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Social Science */}
+        <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-amber-600">
+          <div className="flex items-center mb-3">
+            <Globe className="w-6 h-6 text-amber-600 mr-2" />
+            <h2 className="text-lg font-bold text-gray-900">Social Science</h2>
+          </div>
+          <p className="text-gray-600 mb-4 text-sm">
+            Careers in history, geography, political science, and economics
+          </p>
+          <div className="space-y-2">
+            <div className="flex items-center">
+              <Circle className="w-2 h-2 text-amber-600 mr-2" />
+              <span className="text-sm">Urban Planner</span>
+            </div>
+            <div className="flex items-center">
+              <Circle className="w-2 h-2 text-amber-600 mr-2" />
+              <span className="text-sm">Economist</span>
+            </div>
+            <div className="flex items-center">
+              <Circle className="w-2 h-2 text-amber-600 mr-2" />
+              <span className="text-sm">Archaeologist</span>
+            </div>
+          </div>
+        </div>
+
+        {/* English */}
+        <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-600">
+          <div className="flex items-center mb-3">
+            <BookOpen className="w-6 h-6 text-blue-600 mr-2" />
+            <h2 className="text-lg font-bold text-gray-900">English</h2>
+          </div>
+          <p className="text-gray-600 mb-4 text-sm">
+            Careers for students strong in language and literature
+          </p>
+          <div className="space-y-2">
+            <div className="flex items-center">
+              <Circle className="w-2 h-2 text-blue-600 mr-2" />
+              <span className="text-sm">Content Writer</span>
+            </div>
+            <div className="flex items-center">
+              <Circle className="w-2 h-2 text-blue-600 mr-2" />
+              <span className="text-sm">Journalist</span>
+            </div>
+            <div className="flex items-center">
+              <Circle className="w-2 h-2 text-blue-600 mr-2" />
+              <span className="text-sm">Translator</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Hindi */}
+        <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-600">
+          <div className="flex items-center mb-3">
+            <Languages className="w-6 h-6 text-orange-600 mr-2" />
+            <h2 className="text-lg font-bold text-gray-900">Hindi</h2>
+          </div>
+          <p className="text-gray-600 mb-4 text-sm">
+            Careers in Hindi language and literature
+          </p>
+          <div className="space-y-2">
+            <div className="flex items-center">
+              <Circle className="w-2 h-2 text-orange-600 mr-2" />
+              <span className="text-sm">Hindi Content Specialist</span>
+            </div>
+            <div className="flex items-center">
+              <Circle className="w-2 h-2 text-orange-600 mr-2" />
+              <span className="text-sm">Subtitling Expert</span>
+            </div>
+            <div className="flex items-center">
+              <Circle className="w-2 h-2 text-orange-600 mr-2" />
+              <span className="text-sm">Hindi Linguist</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Computer Applications */}
+        <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-indigo-600">
+          <div className="flex items-center mb-3">
+            <Code className="w-6 h-6 text-indigo-600 mr-2" />
+            <h2 className="text-lg font-bold text-gray-900">Computer Applications</h2>
+          </div>
+          <p className="text-gray-600 mb-4 text-sm">
+            Careers in IT and computer science
+          </p>
+          <div className="space-y-2">
+            <div className="flex items-center">
+              <Circle className="w-2 h-2 text-indigo-600 mr-2" />
+              <span className="text-sm">Software Developer</span>
+            </div>
+            <div className="flex items-center">
+              <Circle className="w-2 h-2 text-indigo-600 mr-2" />
+              <span className="text-sm">Cybersecurity Analyst</span>
+            </div>
+            <div className="flex items-center">
+              <Circle className="w-2 h-2 text-indigo-600 mr-2" />
+              <span className="text-sm">Game Developer</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Career Assessment */}
+      <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">
+          Subject-Based Career Assessment
+        </h2>
+        <p className="text-gray-600 mb-6">
+          Take our AI-powered assessment to discover which careers best match your 
+          performance in NCERT 10th subjects.
+        </p>
+        <button className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200">
+          Start Assessment
+        </button>
+      </div>
+
+      {/* Success Stories */}
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">
+          Alumni Success Stories
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="border rounded-lg p-4">
+            <div className="flex items-center mb-3">
+              <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                <User className="w-5 h-5 text-purple-600" />
+              </div>
+              <div>
+                <h3 className="font-bold">Rahul Sharma</h3>
+                <p className="text-sm text-gray-600">Data Scientist at Google</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600">
+              "My journey began with a strong interest in NCERT Mathematics. 
+              The problem-solving skills I developed in 10th grade became the 
+              foundation for my career in data science."
+            </p>
+          </div>
+          <div className="border rounded-lg p-4">
+            <div className="flex items-center mb-3">
+              <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                <User className="w-5 h-5 text-green-600" />
+              </div>
+              <div>
+                <h3 className="font-bold">Priya Patel</h3>
+                <p className="text-sm text-gray-600">Biotech Researcher</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600">
+              "NCERT Biology textbooks sparked my curiosity about living organisms. 
+              Today, I'm working on cutting-edge genetic research thanks to that 
+              early interest."
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
       case "certificate":
         return (
           <div>
