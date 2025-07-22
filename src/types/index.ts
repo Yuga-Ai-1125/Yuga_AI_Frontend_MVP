@@ -14,22 +14,24 @@ export interface User {
   lastLogin: Date;
 }
 
+// src/types/index.ts
 export interface Course {
   id: string;
   title: string;
   description: string;
-  category: string;
-  level: 'Beginner' | 'Intermediate' | 'Advanced';
-  duration: string;
-  lessons: Lesson[];
-  progress: number;
   image: string;
+  category: string;
+  duration: string;
+  lessons: any[];
+  level: 'Beginner' | 'Intermediate' | 'Advanced';
+  progress: number;
   color: string;
+  chapters: any[];
   instructor: string;
   rating: number;
   students: number;
   tags: string[];
-  notesCount?: number; 
+  notesCount: number; // Add this required property
 }
 
 export interface Lesson {
