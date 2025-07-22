@@ -12,11 +12,11 @@ import { api } from "../utils/api";
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
-  loginWithProvider: (provider: AuthProviderType) => Promise<void>; // Optional
+  loginWithProvider: (provider: AuthProviderType) => Promise<void>;
   logout: () => void;
   updateProfile: (updates: Partial<User>) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
-  verifyEmail: (token: string) => Promise<void>; // Optional
+  verifyEmail: (token: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -38,18 +38,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isLoading: true,
     error: null,
   });
+
+  // ✅ Restore session using saved token
   useEffect(() => {
     const checkSession = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setAuthState((prev) => ({ ...prev, isLoading: false }));
+        return;
+      }
+
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
       try {
         const res = await api.get("/auth/me");
-        console.log(res);
 
         setAuthState({
           user: {
             ...res.data.user,
             progress: {
-              currentStreak: 5,
-            }, // 👈 static value
+              currentStreak: 5, // static for now
+            },
           },
           isAuthenticated: true,
           isLoading: false,
@@ -63,27 +72,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkSession();
   }, []);
 
+  // ✅ Login
   const login = async (email: string, password: string) => {
     setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
     try {
       const res = await api.post("/auth/login", { email, password });
+
+      const token = res.data.token;
+      localStorage.setItem("token", token);
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
       setAuthState({
         user: {
           ...res.data.user,
           progress: {
             currentStreak: 5,
-          }, // 👈 Static value added here
+          },
         },
         isAuthenticated: true,
         isLoading: false,
         error: null,
       });
-
-      // Store token for session persistence
-      localStorage.setItem("token", res.data.token);
-
-      console.log(res);
     } catch (error: any) {
       setAuthState((prev) => ({
         ...prev,
@@ -94,6 +103,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // ✅ Signup
   const signup = async (name: string, email: string, password: string) => {
     setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
     try {
@@ -103,8 +113,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         password,
         confirmPassword: password,
       });
+
+      const token = res.data.token;
+      localStorage.setItem("token", token);
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
       setAuthState({
-        user: res.data.user,
+        user: {
+          ...res.data.user,
+          progress: {
+            currentStreak: 5,
+          },
+        },
         isAuthenticated: true,
         isLoading: false,
         error: null,
@@ -118,12 +138,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       throw error;
     }
   };
+
+  // ✅ Logout
   const logout = async () => {
     try {
       await api.post("/auth/logout"); // Optional
     } catch (err) {
       console.warn("Logout failed, continuing anyway...");
     } finally {
+      localStorage.removeItem("token");
+      delete api.defaults.headers.common["Authorization"];
       setAuthState({
         user: null,
         isAuthenticated: false,
@@ -133,6 +157,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // ✅ Update Profile
   const updateProfile = async (updates: Partial<User>) => {
     if (!authState.user) return;
     try {
@@ -145,6 +170,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // ✅ Reset Password
   const resetPassword = async (email: string) => {
     try {
       await api.post("/auth/forgot-password", { email });
@@ -154,10 +180,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // ⚠️ Placeholder for Email Verification (optional)
   const verifyEmail = async (token: string) => {
     console.log("⚠️ Email verification not implemented in backend yet.");
   };
 
+  // ⚠️ Placeholder for OAuth Login (optional)
   const loginWithProvider = async (provider: AuthProviderType) => {
     console.log("⚠️ OAuth not implemented in frontend yet.");
   };
