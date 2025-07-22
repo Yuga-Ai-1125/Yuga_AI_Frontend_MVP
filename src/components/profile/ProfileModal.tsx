@@ -1,42 +1,70 @@
-import React, { useState } from 'react';
-import { X, User, Mail, Settings, Camera, Save } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState, useEffect } from "react";
+import { X, User, Mail, Settings, Camera, Save } from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
 
 interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
+export const ProfileModal: React.FC<ProfileModalProps> = ({
+  isOpen,
+  onClose,
+}) => {
   const { user, updateProfile, logout } = useAuth();
+
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    learningStyle: user?.preferences.learningStyle || 'visual',
-    difficulty: user?.preferences.difficulty || 'beginner',
-    weeklyGoal: user?.progress.weeklyGoal || 5,
-    notifications: user?.preferences.notifications || true
+    fullName: "",
+    email: "",
+    learningStyle: "visual",
+    difficulty: "beginner",
+    weeklyGoal: 5,
+    notifications: true,
   });
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        fullName: user.fullName || "",
+        email: user.email || "",
+        learningStyle: user.preferences?.learningStyle || "visual",
+        difficulty: user.preferences?.difficulty || "beginner",
+        weeklyGoal: user.progress?.weeklyGoal || 5,
+        notifications: user.preferences?.notifications ?? true,
+      });
+    }
+  }, [user, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
-    await updateProfile({
-      name: formData.name,
-      email: formData.email,
-      preferences: {
-        ...user.preferences,
-        learningStyle: formData.learningStyle as any,
-        difficulty: formData.difficulty as any,
-        notifications: formData.notifications
-      },
-      progress: {
-        ...user.progress,
-        weeklyGoal: formData.weeklyGoal
-      }
-    });
-    onClose();
+    try {
+      await updateProfile({
+        fullName: formData.fullName,
+        email: formData.email,
+        preferences: {
+          ...(user.preferences || {}),
+          learningStyle: formData.learningStyle as
+            | "visual"
+            | "auditory"
+            | "kinesthetic",
+          difficulty: formData.difficulty as
+            | "beginner"
+            | "intermediate"
+            | "advanced",
+          notifications: formData.notifications,
+        },
+        progress: {
+          ...(user.progress || {}),
+          weeklyGoal: formData.weeklyGoal,
+        },
+      });
+
+      onClose();
+    } catch (err) {
+      console.error("Failed to update profile", err);
+    }
   };
 
   if (!isOpen || !user) return null;
@@ -48,7 +76,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
         <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 p-4 sm:p-6 text-white relative">
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 sm:top-4 sm:right-4 text-white hover:text-gray-200 transition-colors"
+            className="absolute top-3 right-3 sm:top-4 sm:right-4 text-white hover:text-gray-200"
           >
             <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
@@ -56,20 +84,27 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
             <div className="relative">
               <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
                 {user.avatar ? (
-                  <img src={user.avatar} alt={user.name} className="w-full h-full rounded-full object-cover" />
+                  <img
+                    src={user.avatar}
+                    alt={user.fullName || "User"}
+                    className="w-full h-full rounded-full object-cover"
+                  />
                 ) : (
                   <User className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                 )}
               </div>
-              <button className="absolute -bottom-1 -right-1 bg-white text-purple-600 p-1.5 sm:p-2 rounded-full shadow-lg hover:bg-gray-50 transition-colors">
+              <button className="absolute -bottom-1 -right-1 bg-white text-purple-600 p-1.5 sm:p-2 rounded-full shadow-lg hover:bg-gray-50">
                 <Camera className="w-3 h-3 sm:w-4 sm:h-4" />
               </button>
             </div>
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold">{user.name}</h2>
-              <p className="text-purple-100 text-sm sm:text-base">{user.email}</p>
+              <h2 className="text-xl sm:text-2xl font-bold">{user.fullName}</h2>
+              <p className="text-purple-100 text-sm sm:text-base">
+                {user.email}
+              </p>
               <p className="text-xs sm:text-sm text-purple-200">
-                Member since {user.createdAt.toLocaleDateString()}
+                Member since{" "}
+                {new Date(user.createdAt || "").toLocaleDateString()}
               </p>
             </div>
           </div>
@@ -77,7 +112,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-6">
-          {/* Personal Information */}
+          {/* Personal Info */}
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
               <User className="w-5 h-5 mr-2 text-purple-600" />
@@ -90,26 +125,33 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
                 </label>
                 <input
                   type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm sm:text-base"
+                  value={formData.fullName}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      fullName: e.target.value,
+                    }))
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
+                  Email
                 </label>
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm sm:text-base"
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, email: e.target.value }))
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 />
               </div>
             </div>
           </div>
 
-          {/* Learning Preferences */}
+          {/* Preferences */}
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
               <Settings className="w-5 h-5 mr-2 text-purple-600" />
@@ -122,8 +164,13 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
                 </label>
                 <select
                   value={formData.learningStyle}
-                  onChange={(e) => setFormData(prev => ({ ...prev, learningStyle: e.target.value }))}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm sm:text-base"
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      learningStyle: e.target.value,
+                    }))
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="visual">Visual</option>
                   <option value="auditory">Auditory</option>
@@ -132,12 +179,17 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Difficulty Level
+                  Difficulty
                 </label>
                 <select
                   value={formData.difficulty}
-                  onChange={(e) => setFormData(prev => ({ ...prev, difficulty: e.target.value }))}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm sm:text-base"
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      difficulty: e.target.value,
+                    }))
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="beginner">Beginner</option>
                   <option value="intermediate">Intermediate</option>
@@ -147,7 +199,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
             </div>
           </div>
 
-          {/* Goals & Notifications */}
+          {/* Weekly Goal and Notifications */}
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Goals & Notifications
@@ -155,52 +207,65 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Weekly Learning Goal (hours)
+                  Weekly Goal (hours)
                 </label>
                 <input
                   type="number"
-                  min="1"
-                  max="50"
+                  min={1}
+                  max={40}
                   value={formData.weeklyGoal}
-                  onChange={(e) => setFormData(prev => ({ ...prev, weeklyGoal: parseInt(e.target.value) }))}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm sm:text-base"
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      weeklyGoal: parseInt(e.target.value),
+                    }))
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                 />
               </div>
               <div className="flex items-center">
                 <input
-                  type="checkbox"
                   id="notifications"
+                  type="checkbox"
                   checked={formData.notifications}
-                  onChange={(e) => setFormData(prev => ({ ...prev, notifications: e.target.checked }))}
-                  className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      notifications: e.target.checked,
+                    }))
+                  }
+                  className="w-4 h-4 text-purple-600 focus:ring-purple-500"
                 />
-                <label htmlFor="notifications" className="ml-2 text-sm text-gray-700">
-                  Enable push notifications for learning reminders
+                <label
+                  htmlFor="notifications"
+                  className="ml-2 text-sm text-gray-700"
+                >
+                  Enable push notifications
                 </label>
               </div>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex flex-col sm:flex-row justify-between pt-6 border-t border-gray-200 space-y-3 sm:space-y-0">
+          <div className="flex justify-between items-center pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={logout}
-              className="px-6 py-2 text-red-600 hover:text-red-700 font-medium text-sm sm:text-base"
+              className="text-red-600 hover:text-red-700 font-medium"
             >
               Sign Out
             </button>
-            <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+            <div className="flex gap-3">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
+                className="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 flex items-center justify-center text-sm sm:text-base"
+                className="px-5 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center"
               >
                 <Save className="w-4 h-4 mr-2" />
                 Save Changes

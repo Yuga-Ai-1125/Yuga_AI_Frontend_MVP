@@ -1,11 +1,12 @@
 export interface User {
   id: string;
   name: string;
+  fullName: string;
   email: string;
   avatar?: string;
   preferences: {
-    learningStyle: 'visual' | 'auditory' | 'kinesthetic';
-    difficulty: 'beginner' | 'intermediate' | 'advanced';
+    learningStyle: "visual" | "auditory" | "kinesthetic";
+    difficulty: "beginner" | "intermediate" | "advanced";
     subjects: string[];
     notifications: boolean;
   };
@@ -19,7 +20,7 @@ export interface Course {
   title: string;
   description: string;
   category: string;
-  level: 'Beginner' | 'Intermediate' | 'Advanced';
+  level: "Beginner" | "Intermediate" | "Advanced";
   duration: string;
   lessons: Lesson[];
   progress: number;
@@ -29,14 +30,14 @@ export interface Course {
   rating: number;
   students: number;
   tags: string[];
-  notesCount?: number; 
+  notesCount?: number;
 }
 
 export interface Lesson {
   id: string;
   title: string;
   content: string;
-  type: 'video' | 'reading' | 'interactive' | 'quiz';
+  type: "video" | "reading" | "interactive" | "quiz";
   duration: string;
   completed: boolean;
   videoUrl?: string;
@@ -56,16 +57,16 @@ export interface QuizQuestion {
   options: string[];
   correctAnswer: number;
   explanation: string;
-  difficulty: 'easy' | 'medium' | 'hard';
+  difficulty: "easy" | "medium" | "hard";
   subject: string;
 }
 
 export interface ChatMessage {
   id: string;
   content: string;
-  sender: 'user' | 'ai';
+  sender: "user" | "ai";
   timestamp: Date;
-  type?: 'text' | 'voice' | 'image';
+  type?: "text" | "voice" | "image";
   subject?: string;
   isDoubt?: boolean;
 }
@@ -86,7 +87,7 @@ export interface Achievement {
   description: string;
   icon: string;
   unlockedAt: Date;
-  rarity: 'common' | 'rare' | 'epic' | 'legendary';
+  rarity: "common" | "rare" | "epic" | "legendary";
 }
 
 export interface Doubt {
@@ -95,13 +96,13 @@ export interface Doubt {
   subject: string;
   course?: string;
   answer?: string;
-  status: 'pending' | 'answered' | 'resolved';
+  status: "pending" | "answered" | "resolved";
   timestamp: Date;
   tags: string[];
-  difficulty: 'easy' | 'medium' | 'hard';
+  difficulty: "easy" | "medium" | "hard";
 }
 
-export type AuthProvider = 'email' | 'google' | 'apple';
+export type AuthProvider = "email" | "google" | "apple";
 
 export interface AuthState {
   user: User | null;
