@@ -37,7 +37,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { AuthModal } from "./components/auth/AuthModal";
 import { ProfileModal } from "./components/profile/ProfileModal";
 import { OnboardingFlow } from "./components/onboarding/OnboardingFlow";
-import { CourseCard } from "./components/CourseCard";
+import CourseCard from "./components/CourseCard";
 import { ChatInterface } from "./components/ChatInterface";
 import { QuizComponent } from "./components/QuizComponent";
 import { AIClassroom } from "./components/course/AIClassroom";
@@ -126,17 +126,17 @@ function MainApp() {
     {
       id: "certificate",
       label: "Champion Certificate",
-      icon: <Trophy className="w--5 h-5" />,
+      icon: <Trophy className="w-5 h-5" />,
     },
     {
       id: "revision",
       label: "Revision",
-      icon: <Award className="w-5 h-5" />,
+      icon: <RefreshCw className="w-5 h-5" />,
     },
     {
       id: "career-guide",
       label: "AI Career Guide",
-      icon: <Briefcase className="w-5 h-5" />,
+      icon: <Briefcase className="w-5 h-5" />, // You'll need to import Briefcase from lucide-react
     },
   ];
 
@@ -253,13 +253,9 @@ function MainApp() {
                 Explore Our Courses
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {mockCourses.slice(0, 6).map((course) => (
-                  <CourseCard
-                    key={course.id}
-                    course={course}
+                {/* <CourseCard
                     onClick={() => handleCourseClick(course)}
-                  />
-                ))}
+                  /> */}
               </div>
             </div>
           </div>
@@ -574,29 +570,34 @@ function MainApp() {
                       )
                       .flatMap(
                         (lesson) =>
-                          lesson.images?.map((image, index) => (
-                            <div
-                              key={`${lesson.id}-${index}`}
-                              className="bg-white rounded-lg shadow-md overflow-hidden"
-                            >
-                              <img
-                                src={image.url}
-                                alt={
-                                  image.alt ||
-                                  `${lesson.title} image ${index + 1}`
-                                }
-                                className="w-full h-40 object-cover"
-                              />
-                              <div className="p-2">
-                                <p className="text-xs text-gray-600 truncate">
-                                  {course.title}
-                                </p>
-                                <p className="text-xs text-gray-500 truncate">
-                                  {lesson.title}
-                                </p>
+                          lesson.images?.map(
+                            (
+                              image: { url: string | undefined; alt: any },
+                              index: number
+                            ) => (
+                              <div
+                                key={`${lesson.id}-${index}`}
+                                className="bg-white rounded-lg shadow-md overflow-hidden"
+                              >
+                                <img
+                                  src={image.url}
+                                  alt={
+                                    image.alt ||
+                                    `${lesson.title} image ${index + 1}`
+                                  }
+                                  className="w-full h-40 object-cover"
+                                />
+                                <div className="p-2">
+                                  <p className="text-xs text-gray-600 truncate">
+                                    {course.title}
+                                  </p>
+                                  <p className="text-xs text-gray-500 truncate">
+                                    {lesson.title}
+                                  </p>
+                                </div>
                               </div>
-                            </div>
-                          )) || []
+                            )
+                          ) || []
                       )
                   )}
                 </div>
@@ -1393,14 +1394,11 @@ function MainApp() {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredCourses.map((course) => (
-                  <CourseCard
-                    key={course.id}
-                    course={course}
-                    onClick={() => handleCourseClick(course)}
-                  />
-                ))}
+              <div className="grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <CourseCard
+                  onCourseClick={handleCourseClick}
+                  searchQuery={courseSearchQuery}
+                />
               </div>
 
               {/* No results message */}

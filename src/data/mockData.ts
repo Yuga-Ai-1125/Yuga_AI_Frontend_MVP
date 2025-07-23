@@ -68,7 +68,8 @@ export const mockCourses: Course[] = [
     rating: 4.9,
     notesCount: 12,
     students: 15600,
-    tags: ['CBSE', 'Class 10', 'Algebra', 'Geometry', 'Trigonometry']
+    tags: ['CBSE', 'Class 10', 'Algebra', 'Geometry', 'Trigonometry'],
+    chapters: []
   },
   {
     id: '2',
@@ -85,7 +86,8 @@ export const mockCourses: Course[] = [
     rating: 4.8,
     notesCount: 12,
     students: 14200,
-    tags: ['CBSE', 'Class 10', 'Physics', 'Chemistry', 'Biology']
+    tags: ['CBSE', 'Class 10', 'Physics', 'Chemistry', 'Biology'],
+    chapters: []
   },
   {
     id: '3',
@@ -102,7 +104,8 @@ export const mockCourses: Course[] = [
     rating: 4.7,
     notesCount: 12,
     students: 12800,
-    tags: ['CBSE', 'Class 10', 'History', 'Geography', 'Political Science', 'Economics']
+    tags: ['CBSE', 'Class 10', 'History', 'Geography', 'Political Science', 'Economics'],
+    chapters: []
   },
   {
     id: '4',
@@ -119,7 +122,8 @@ export const mockCourses: Course[] = [
     rating: 4.8,
     notesCount: 12,
     students: 13500,
-    tags: ['CBSE', 'Class 10', 'Literature', 'Grammar', 'Writing Skills']
+    tags: ['CBSE', 'Class 10', 'Literature', 'Grammar', 'Writing Skills'],
+    chapters: []
   },
   {
     id: '5',
@@ -136,7 +140,8 @@ export const mockCourses: Course[] = [
     rating: 4.7,
     notesCount: 12,
     students: 11900,
-    tags: ['CBSE', 'Class 10', 'Hindi Literature', 'Grammar', 'Creative Writing']
+    tags: ['CBSE', 'Class 10', 'Hindi Literature', 'Grammar', 'Creative Writing'],
+    chapters: []
   },
   {
     id: '6',
@@ -153,7 +158,8 @@ export const mockCourses: Course[] = [
     rating: 4.6,
     notesCount: 12,
     students: 9200,
-    tags: ['CBSE', 'Class 10', 'Computer Basics', 'MS Office', 'Programming']
+    tags: ['CBSE', 'Class 10', 'Computer Basics', 'MS Office', 'Programming'],
+    chapters: []
   }
 ];
 
