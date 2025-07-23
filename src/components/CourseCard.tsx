@@ -1,8 +1,7 @@
-// src/components/CourseCard.tsx
-import React, { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
-import { Clock, BookOpen, Users, Star } from 'lucide-react';
-import { Course } from '../types';
+import React, { useEffect, useState, useCallback } from "react";
+import { api } from "../utils/api";
+import { Clock, BookOpen, Users, Star } from "lucide-react";
+import { Course } from "../types";
 
 interface RawCourse {
   id: string;
@@ -19,47 +18,68 @@ interface CourseCardProps {
 
 const getSubjectColor = (subject: string) => {
   const colors: Record<string, string> = {
-    Mathematics: 'bg-purple-500',
-    Science: 'bg-green-500',
-    English: 'bg-blue-500',
-    Hindi: 'bg-yellow-500',
-    'Social Science': 'bg-red-500',
-    'Computer Applications': 'bg-indigo-500',
+    Mathematics: "bg-purple-500",
+    Science: "bg-green-500",
+    English: "bg-blue-500",
+    Hindi: "bg-yellow-500",
+    "Social Science": "bg-red-500",
+    "Computer Applications": "bg-indigo-500",
   };
-  return colors[subject] || 'bg-gray-500';
+  return colors[subject] || "bg-gray-500";
 };
 
-const CourseCard: React.FC<CourseCardProps> = ({ onCourseClick, searchQuery = '' }) => {
+const CourseCard: React.FC<CourseCardProps> = ({
+  onCourseClick,
+  searchQuery = "",
+}) => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const transformCourse = useCallback(
+    (raw: RawCourse, index: number): Course => ({
+      id: raw.id,
+      title: raw.name,
+      description: `${raw.name} includes ${raw.chapters} chapters.`,
+      image: raw.image,
+      category: raw.name,
+      duration: `${raw.duration} mins`,
+      lessons: Array.from({ length: raw.chapters }, (_, i) => ({
+        title: `Lesson ${i + 1}`,
+      })),
+      level:
+        index % 3 === 0
+          ? "Beginner"
+          : index % 3 === 1
+          ? "Intermediate"
+          : "Advanced",
+      progress: Math.floor(Math.random() * 100),
+      color: getSubjectColor(raw.name),
+      chapters: Array.from({ length: raw.chapters }, (_, i) => ({
+        title: `Chapter ${i + 1}`,
+      })),
+      instructor: "AI Tutor",
+      rating: 4.5 + Math.random() * 0.5,
+      students: Math.floor(Math.random() * 10000),
+      tags: [raw.name, "NCERT", "Class 10"],
+      notesCount: Math.floor(Math.random() * 10),
+    }),
+    []
+  );
 
   const fetchCourses = useCallback(async () => {
     try {
-      const response = await axios.get<RawCourse[]>('http://localhost:5000/api/courses');
-      const transformed: Course[] = response.data.map((raw, index) => ({
-        id: raw.id,
-        title: raw.name,
-        description: `${raw.name} includes ${raw.chapters} chapters.`,
-        image: raw.image,
-        category: raw.name,
-        duration: `${raw.duration} mins`,
-        lessons: Array(raw.chapters).fill({ title: `Lesson ${index + 1}` }),
-        level: index % 3 === 0 ? 'Beginner' : index % 3 === 1 ? 'Intermediate' : 'Advanced',
-        progress: Math.floor(Math.random() * 100),
-        color: getSubjectColor(raw.name),
-        chapters: Array(raw.chapters).fill({ title: `Chapter ${index + 1}` }),
-        instructor: 'AI Tutor',
-        rating: 4.5 + Math.random() * 0.5,
-        students: Math.floor(Math.random() * 10000),
-        tags: [raw.name, 'NCERT', 'Class 10'],
-        notesCount: Math.floor(Math.random() * 10)
-      }));
+      setLoading(true);
+      const response = await api.get<RawCourse[]>("/course/courses");
+      const transformed = response.data.map(transformCourse);
       setCourses(transformed);
       setFilteredCourses(transformed);
     } catch (error) {
-      console.error('Failed to fetch courses:', error);
+      console.error("Failed to fetch courses:", error);
+    } finally {
+      setLoading(false);
     }
-  }, []);
+  }, [transformCourse]);
 
   useEffect(() => {
     fetchCourses();
@@ -73,7 +93,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ onCourseClick, searchQuery = ''
           course.title.toLowerCase().includes(query) ||
           course.description.toLowerCase().includes(query) ||
           course.category.toLowerCase().includes(query) ||
-          course.tags.some(tag => tag.toLowerCase().includes(query))
+          course.tags.some((tag) => tag.toLowerCase().includes(query))
         );
       });
       setFilteredCourses(filtered);
@@ -81,6 +101,14 @@ const CourseCard: React.FC<CourseCardProps> = ({ onCourseClick, searchQuery = ''
       setFilteredCourses(courses);
     }
   }, [searchQuery, courses]);
+
+  if (loading) {
+    return (
+      <div className="text-center py-12 col-span-full text-gray-500">
+        <p>Loading courses...</p>
+      </div>
+    );
+  }
 
   if (filteredCourses.length === 0 && searchQuery) {
     return (
@@ -107,17 +135,22 @@ const CourseCard: React.FC<CourseCardProps> = ({ onCourseClick, searchQuery = ''
           className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer transform hover:-translate-y-1"
         >
           <div className="relative h-48 overflow-hidden">
-            {/* <img
-              src={course.image}
+            <img
+              src={course.image || "/fallback.jpg"}
               alt={course.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            /> */}
-            <div className={`absolute inset-0 ${course.color} opacity-80`} />
+            />
+            <div className="absolute inset-0 bg-black opacity-10" />
             <div className="absolute top-4 right-4">
-              <span className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${
-                course.level === 'Beginner' ? 'bg-green-500' :
-                course.level === 'Intermediate' ? 'bg-yellow-500' : 'bg-red-500'
-              }`}>
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${
+                  course.level === "Beginner"
+                    ? "bg-green-500"
+                    : course.level === "Intermediate"
+                    ? "bg-yellow-500"
+                    : "bg-red-500"
+                }`}
+              >
                 {course.level}
               </span>
             </div>
@@ -142,7 +175,9 @@ const CourseCard: React.FC<CourseCardProps> = ({ onCourseClick, searchQuery = ''
               </span>
               <div className="flex items-center text-yellow-400">
                 <Star className="w-4 h-4 fill-current" />
-                <span className="text-sm text-gray-600 ml-1">{course.rating?.toFixed(1)}</span>
+                <span className="text-sm text-gray-600 ml-1">
+                  {course.rating?.toFixed(1)}
+                </span>
               </div>
             </div>
 

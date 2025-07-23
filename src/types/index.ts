@@ -15,7 +15,6 @@ export interface User {
   lastLogin: Date;
 }
 
-// src/types/index.ts
 export interface Course {
   id: string;
   title: string;
