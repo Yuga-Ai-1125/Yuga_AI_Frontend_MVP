@@ -135,12 +135,15 @@ const CourseCard: React.FC<CourseCardProps> = ({
           className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer transform hover:-translate-y-1"
         >
           <div className="relative h-48 overflow-hidden">
-            <img
+            {/* <img
               src={course.image || "/fallback.jpg"}
               alt={course.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            />
-            <div className="absolute inset-0 bg-black opacity-10" />
+            /> */}
+            <div
+              className={`absolute inset-0 ${course.color} opacity-10`}
+            ></div>
+
             <div className="absolute top-4 right-4">
               <span
                 className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${
