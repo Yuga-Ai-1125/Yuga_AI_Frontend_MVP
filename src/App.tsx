@@ -66,6 +66,7 @@ import { PrivacyPolicy } from "./pages/legal/PrivacyPolicy";
 import { TermsOfService } from "./pages/legal/TermsOfService";
 import { CookiePolicy } from "./pages/legal/CookiePolicy";
 import { GDPR } from "./pages/legal/GDPR";
+import ResetPasswordPage from "./components/auth/ResetPasswordPage";
 
 type ActiveView =
   | "dashboard"
@@ -1569,6 +1570,11 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<MainApp />} />
+          <Route
+            path="/reset-password/:token"
+            element={<ResetPasswordPage />}
+          />
+
           <Route path="/about" element={<AboutUs />} />
           <Route path="/mission" element={<OurMission />} />
           <Route path="/careers" element={<Careers />} />

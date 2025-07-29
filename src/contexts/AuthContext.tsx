@@ -17,6 +17,7 @@ interface AuthContextType extends AuthState {
   updateProfile: (updates: Partial<User>) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   verifyEmail: (token: string) => Promise<void>;
+  setNewPassword: (token: string, password: string) => Promise<any>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -94,6 +95,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         error: null,
       });
     } catch (error: any) {
+      localStorage.removeItem("token");
       setAuthState((prev) => ({
         ...prev,
         isLoading: false,
@@ -179,6 +181,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       throw err;
     }
   };
+  const setNewPassword = async (token: string, password: string) => {
+    try {
+      const res = await api.post("/auth/reset-password", {
+        token,
+        newPassword: password,
+      });
+      return res.data;
+    } catch (err) {
+      throw err;
+    }
+  };
 
   // ⚠️ Placeholder for Email Verification (optional)
   const verifyEmail = async (token: string) => {
@@ -201,6 +214,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         resetPassword,
         verifyEmail,
         loginWithProvider,
+        setNewPassword,
       }}
     >
       {children}
