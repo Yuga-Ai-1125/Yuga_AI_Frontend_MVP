@@ -66,6 +66,7 @@ import { PrivacyPolicy } from "./pages/legal/PrivacyPolicy";
 import { TermsOfService } from "./pages/legal/TermsOfService";
 import { CookiePolicy } from "./pages/legal/CookiePolicy";
 import { GDPR } from "./pages/legal/GDPR";
+import ResetPasswordPage from "./components/auth/ResetPasswordPage";
 
 type ActiveView =
   | "dashboard"
@@ -1320,7 +1321,7 @@ function MainApp() {
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="text-4xl font-bold mb-2">
-                    Welcome back, {user?.name}!
+                    Welcome back, {user?.fullName}!
                   </h1>
                   <p className="text-purple-100 text-lg">
                     Ready to continue your AI-powered learning journey?
@@ -1569,6 +1570,11 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<MainApp />} />
+          <Route
+            path="/reset-password/:token"
+            element={<ResetPasswordPage />}
+          />
+
           <Route path="/about" element={<AboutUs />} />
           <Route path="/mission" element={<OurMission />} />
           <Route path="/careers" element={<Careers />} />
