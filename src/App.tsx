@@ -53,7 +53,7 @@ import {
 import { Course } from "./types";
 import ErrorBoundary from "./ErrorBoundary";
 
-// Import all page components
+// Import all page components for routing
 import { AboutUs } from "./pages/company/AboutUs";
 import { OurMission } from "./pages/company/OurMission";
 import { Careers } from "./pages/company/Careers";
@@ -68,6 +68,7 @@ import { CookiePolicy } from "./pages/legal/CookiePolicy";
 import { GDPR } from "./pages/legal/GDPR";
 import ResetPasswordPage from "./components/auth/ResetPasswordPage";
 
+// Define possible active views in the application
 type ActiveView =
   | "dashboard"
   | "notes"
@@ -77,8 +78,12 @@ type ActiveView =
   | "revision"
   | "media";
 
+// Main application component that handles routing and state management
 function MainApp() {
+  // Authentication state and user information
   const { user, isAuthenticated, isLoading } = useAuth();
+  
+  // State management for various UI components and features
   const [activeView, setActiveView] = useState<ActiveView>("dashboard");
   const [showOnboarding, setShowOnboarding] = useState(!isAuthenticated);
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -97,7 +102,7 @@ function MainApp() {
     "videos"
   );
 
-  // Show loading state while checking session
+  // Show loading state while checking authentication session
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -106,11 +111,12 @@ function MainApp() {
     );
   }
 
-  // Show onboarding for new users
+  // Show onboarding flow for new/unauthenticated users
   if (showOnboarding && !isAuthenticated) {
     return <OnboardingFlow onComplete={() => setShowOnboarding(false)} />;
   }
 
+  // Navigation items with icons and labels for the sidebar
   const navigation = [
     {
       id: "dashboard",
@@ -137,15 +143,17 @@ function MainApp() {
     {
       id: "career-guide",
       label: "AI Career Guide",
-      icon: <Briefcase className="w-5 h-5" />, // You'll need to import Briefcase from lucide-react
+      icon: <Briefcase className="w-5 h-5" />,
     },
   ];
 
+  // Handler for authentication actions (login/signup)
   const handleAuthAction = (mode: "login" | "signup") => {
     setAuthModalMode(mode);
     setIsAuthModalOpen(true);
   };
 
+  // Handler for when a course is clicked
   const handleCourseClick = (course: Course) => {
     if (!isAuthenticated) {
       handleAuthAction("login");
@@ -168,7 +176,9 @@ function MainApp() {
     );
   });
 
+  // Main content renderer based on active view and authentication status
   const renderContent = () => {
+    // Show landing page for unauthenticated users
     if (!isAuthenticated) {
       return (
         <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-cyan-50">
@@ -254,6 +264,7 @@ function MainApp() {
                 Explore Our Courses
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {/* Course cards would be rendered here */}
                 {/* <CourseCard
                     onClick={() => handleCourseClick(course)}
                   /> */}
@@ -264,6 +275,7 @@ function MainApp() {
       );
     }
 
+    // Switch statement to render different views based on activeView state
     switch (activeView) {
       case "notes":
         return (
@@ -318,7 +330,6 @@ function MainApp() {
 
               {/* Recent Notes */}
               <div className="bg-white rounded-xl shadow-lg p-6">
-                DG{" "}
                 <div className="flex items-center mb-4">
                   <RefreshCw className="w-6 h-6 text-blue-600 mr-3" />
                   <h2 className="text-xl font-bold text-gray-900">
@@ -457,7 +468,7 @@ function MainApp() {
                 <label
                   htmlFor="note-content"
                   className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                  >
                   Content
                 </label>
                 <textarea
@@ -1245,7 +1256,7 @@ function MainApp() {
                 </div>
                 <button className="w-full mt-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-2 px-4 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200">
                   Start Quick Revision
-                </button>
+                  </button>
               </div>
 
               {/* Spaced Repetition */}
@@ -1314,6 +1325,7 @@ function MainApp() {
         );
 
       default:
+        // Default view: Dashboard
         return (
           <div>
             {/* Hero Section */}
@@ -1471,7 +1483,7 @@ function MainApp() {
     }
   };
 
-  // Helper function to get subject color
+  // Helper function to get subject color for UI elements
   const getSubjectColor = (subject: string) => {
     const colors: Record<string, string> = {
       Mathematics: "bg-purple-500",
@@ -1486,6 +1498,7 @@ function MainApp() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Navigation component */}
       <Navigation
         isAuthenticated={isAuthenticated}
         user={user}
@@ -1526,6 +1539,7 @@ function MainApp() {
         onClose={() => setIsProfileModalOpen(false)}
       />
 
+      {/* AI Classroom modal when a course and lesson are selected */}
       {selectedCourse && selectedLesson && (
         <AIClassroom
           course={selectedCourse}
@@ -1538,6 +1552,7 @@ function MainApp() {
         />
       )}
 
+      {/* Doubt solver modal */}
       <DoubtSolver
         isOpen={isDoubtSolverOpen}
         onClose={() => setIsDoubtSolverOpen(false)}
@@ -1564,6 +1579,7 @@ function MainApp() {
   );
 }
 
+// Main App component with routing and authentication provider
 function App() {
   return (
     <AuthProvider>
@@ -1575,18 +1591,25 @@ function App() {
             element={<ResetPasswordPage />}
           />
 
+          {/* Company pages */}
           <Route path="/about" element={<AboutUs />} />
           <Route path="/mission" element={<OurMission />} />
           <Route path="/careers" element={<Careers />} />
           <Route path="/press" element={<Press />} />
+          
+          {/* Support pages */}
           <Route path="/help" element={<HelpCenter />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/status" element={<SystemStatus />} />
           <Route path="/community" element={<Community />} />
+          
+          {/* Legal pages */}
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/cookies" element={<CookiePolicy />} />
           <Route path="/gdpr" element={<GDPR />} />
+          
+          {/* Catch-all route redirects to home */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>

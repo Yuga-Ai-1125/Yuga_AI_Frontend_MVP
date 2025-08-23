@@ -28,7 +28,7 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
     const baseSegments = [
       {
         title: 'Introduction',
-        content: `Welcome to today's lesson on ${lesson.title}. I'm Professor YUGA, your AI instructor. Today we'll explore the fundamental concepts and practical applications of this topic. Let's begin our journey into ${course.category.toLowerCase()}.`,
+        content: `Welcome to today's lesson on ${lesson.title}. I'm Professor Alex, your AI instructor. Today we'll explore the fundamental concepts and practical applications of this topic. Let's begin our journey into ${course.category.toLowerCase()}.`,
         keyPoints: [
           `Understanding ${lesson.title}`,
           'Learning objectives for today',

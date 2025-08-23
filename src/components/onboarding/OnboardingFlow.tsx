@@ -113,19 +113,19 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white bg-opacity-10 rounded-2xl p-6 backdrop-blur-lg">
-              <h3 className="font-bold text-white mb-3">🎯 Personalized Recommendations</h3>
+              <h3 className="font-bold text-white mb-3">Personalized Recommendations</h3>
               <p className="text-emerald-100 text-sm">AI analyzes your performance and suggests career paths that match your strengths</p>
             </div>
             <div className="bg-white bg-opacity-10 rounded-2xl p-6 backdrop-blur-lg">
-              <h3 className="font-bold text-white mb-3">📊 Skills Assessment</h3>
+              <h3 className="font-bold text-white mb-3">Skills Assessment</h3>
               <p className="text-emerald-100 text-sm">Discover your natural talents and areas for improvement</p>
             </div>
             <div className="bg-white bg-opacity-10 rounded-2xl p-6 backdrop-blur-lg">
-              <h3 className="font-bold text-white mb-3">🚀 Future Planning</h3>
+              <h3 className="font-bold text-white mb-3">Future Planning</h3>
               <p className="text-emerald-100 text-sm">Get step-by-step guidance for your academic and career journey</p>
             </div>
             <div className="bg-white bg-opacity-10 rounded-2xl p-6 backdrop-blur-lg">
-              <h3 className="font-bold text-white mb-3">💼 Industry Insights</h3>
+              <h3 className="font-bold text-white mb-3">Industry Insights</h3>
               <p className="text-emerald-100 text-sm">Learn about trending careers and future job opportunities</p>
             </div>
           </div>
@@ -167,7 +167,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
               </div>
             </div>
             <div className="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 rounded-2xl p-6 text-center">
-              <h3 className="font-bold text-white text-lg mb-2">🏆 Become a YUGA Champion!</h3>
+              <h3 className="font-bold text-white text-lg mb-2">Become a YUGA Champion!</h3>
               <p className="text-yellow-100 text-sm">Join thousands of students who have earned their Champion Certificates</p>
             </div>
           </div>
