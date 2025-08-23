@@ -1,6 +1,6 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "https://yuga-ai-backend-mvp.onrender.com",
+  baseURL: "https://yuga-ai-backend-mvp.onrender.com/api",
   withCredentials: true,
 });
