@@ -85,7 +85,7 @@ function MainApp() {
   
   // State management for various UI components and features
   const [activeView, setActiveView] = useState<ActiveView>("dashboard");
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(!isAuthenticated);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isDoubtSolverOpen, setIsDoubtSolverOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
