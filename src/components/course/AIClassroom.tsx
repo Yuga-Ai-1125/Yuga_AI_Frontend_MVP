@@ -28,9 +28,9 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
     const baseSegments = [
       {
         title: 'Introduction',
-        content: `Welcome to today's lesson on ${lesson.title}. I'm Professor Alex, your AI instructor. Today we'll explore the fundamental concepts and practical applications of this topic. Let's begin our journey into ${course.category.toLowerCase()}.`,
+        content: Welcome to today's lesson on ${lesson.title}. I'm Professor YUGA, your AI instructor. Today we'll explore the fundamental concepts and practical applications of this topic. Let's begin our journey into ${course.category.toLowerCase()}.,
         keyPoints: [
-          `Understanding ${lesson.title}`,
+          Understanding ${lesson.title},
           'Learning objectives for today',
           'Real-world applications',
           'Prerequisites and background'
@@ -39,7 +39,7 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
       },
       {
         title: 'Core Concepts',
-        content: `Let's dive into the core concepts. ${lesson.content} This forms the foundation of our understanding. Pay close attention as we break down each component step by step.`,
+        content: Let's dive into the core concepts. ${lesson.content} This forms the foundation of our understanding. Pay close attention as we break down each component step by step.,
         keyPoints: [
           'Fundamental principles',
           'Key definitions and terminology',
@@ -50,7 +50,7 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
       },
       {
         title: 'Practical Examples',
-        content: `Now let's see how these concepts apply in real-world scenarios. I'll walk you through several examples to solidify your understanding and show you practical implementations.`,
+        content: Now let's see how these concepts apply in real-world scenarios. I'll walk you through several examples to solidify your understanding and show you practical implementations.,
         keyPoints: [
           'Real-world applications',
           'Industry case studies',
@@ -61,7 +61,7 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
       },
       {
         title: 'Interactive Practice',
-        content: `Time for some hands-on practice! Let's work through some problems together. Feel free to ask questions at any time using the chat feature or microphone.`,
+        content: Time for some hands-on practice! Let's work through some problems together. Feel free to ask questions at any time using the chat feature or microphone.,
         keyPoints: [
           'Practice exercises',
           'Step-by-step solutions',
@@ -72,7 +72,7 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
       },
       {
         title: 'Summary & Next Steps',
-        content: `Excellent work! Let's summarize what we've learned today and discuss how to apply these concepts moving forward. Remember, practice makes perfect!`,
+        content: Excellent work! Let's summarize what we've learned today and discuss how to apply these concepts moving forward. Remember, practice makes perfect!,
         keyPoints: [
           'Key takeaways from today',
           'Summary of main concepts',
@@ -136,7 +136,7 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
   const handleQuestionAsked = (question: string) => {
     // Pause lesson when question is asked
     setIsLessonActive(false);
-    setCurrentSpeech(`Great question! Let me address that: "${question}". This is an important point that relates to our current topic.`);
+    setCurrentSpeech(Great question! Let me address that: "${question}". This is an important point that relates to our current topic.);
     
     // Resume lesson after answering
     setTimeout(() => {
@@ -149,25 +149,25 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black z-[9999] flex flex-col">
-      {/* Header Bar */}
-      <div className="bg-gradient-to-r from-slate-900 via-purple-900 to-indigo-900 text-white p-4 flex items-center justify-between flex-shrink-0">
+    <div className="fixed inset-0 bg-black z-[9999] flex flex-col overflow-hidden">
+      {/* Header Bar - Fixed at top */}
+      <div className="bg-gradient-to-r from-slate-900 via-purple-900 to-indigo-900 text-white p-4 flex items-center justify-between flex-shrink-0 z-10">
         <div className="flex items-center space-x-4">
           <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-lg flex items-center justify-center">
             <BookOpen className="w-6 h-6 text-white" />
           </div>
-          <div>
-            <h1 className="text-xl font-bold">{course.title}</h1>
-            <p className="text-purple-200 text-sm">{lesson.title}</p>
+          <div className="max-w-[50%]">
+            <h1 className="text-xl font-bold truncate">{course.title}</h1>
+            <p className="text-purple-200 text-sm truncate">{lesson.title}</p>
           </div>
         </div>
         
         <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2 text-sm">
+          <div className="hidden sm:flex items-center space-x-2 text-sm">
             <Users className="w-4 h-4" />
             <span>1,247 students</span>
           </div>
-          <div className="flex items-center space-x-2 text-sm">
+          <div className="hidden sm:flex items-center space-x-2 text-sm">
             <Clock className="w-4 h-4" />
             <span>{lesson.duration}</span>
           </div>
@@ -180,10 +180,10 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
         </div>
       </div>
 
-      {/* Main Classroom Interface */}
-      <div className="flex-1 flex min-h-0">
+      {/* Main Classroom Interface - Scrollable content */}
+      <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-y-auto">
         {/* Left Side - AI Avatar and Controls */}
-        <div className="flex-1 bg-gradient-to-br from-slate-800 via-purple-900 to-indigo-900 relative overflow-hidden">
+        <div className="flex-1 bg-gradient-to-br from-slate-800 via-purple-900 to-indigo-900 relative overflow-hidden min-h-[60vh] lg:min-h-0">
           {/* Ambient Background Effects */}
           <div className="absolute inset-0 opacity-20">
             <div className="absolute top-10 left-10 w-32 h-32 bg-purple-500 rounded-full blur-3xl animate-pulse"></div>
@@ -191,8 +191,8 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
             <div className="absolute top-1/2 left-1/3 w-24 h-24 bg-indigo-500 rounded-full blur-2xl animate-pulse delay-500"></div>
           </div>
 
-          {/* AI Avatar Section */}
-          <div className="relative z-10 h-full flex flex-col items-center justify-center p-8">
+          {/* AI Avatar Section - Centered with proper spacing */}
+          <div className="relative z-10 h-full flex flex-col items-center justify-center p-4 lg:p-8 pt-16 lg:pt-8">
             <RealisticAvatar
               gender={avatarGender}
               isTeaching={isLessonActive}
@@ -202,22 +202,22 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
               onQuestionAsked={handleQuestionAsked}
             />
 
-            {/* Lesson Progress */}
+            {/* Lesson Progress - Positioned with proper spacing */}
             {lessonProgress > 0 && (
-              <div className="absolute bottom-32 left-1/2 transform -translate-x-1/2 w-80">
-                <div className="bg-black bg-opacity-50 backdrop-blur-lg rounded-2xl p-6 text-white">
+              <div className="absolute bottom-28 lg:bottom-32 left-1/2 transform -translate-x-1/2 w-full max-w-xs px-4">
+                <div className="bg-black bg-opacity-50 backdrop-blur-lg rounded-2xl p-4 text-white">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-sm font-medium">Lesson Progress</span>
                     <span className="text-sm">{Math.round(lessonProgress)}%</span>
                   </div>
-                  <div className="w-full bg-gray-700 rounded-full h-3 mb-3">
+                  <div className="w-full bg-gray-700 rounded-full h-2 mb-3">
                     <div
-                      className="h-3 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full transition-all duration-1000"
-                      style={{ width: `${lessonProgress}%` }}
+                      className="h-2 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full transition-all duration-1000"
+                      style={{ width: ${lessonProgress}% }}
                     />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm text-purple-200">{currentLessonSegment?.title}</p>
+                    <p className="text-sm text-purple-200 truncate">{currentLessonSegment?.title}</p>
                     <p className="text-xs text-purple-300 mt-1">
                       Segment {currentSegment + 1} of {lessonSegments.length}
                     </p>
@@ -226,47 +226,47 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
               </div>
             )}
 
-            {/* Control Panel */}
-            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-              <div className="bg-black bg-opacity-50 backdrop-blur-lg rounded-2xl p-4 flex items-center space-x-4">
+            {/* Control Panel - Fixed at bottom with proper spacing */}
+            <div className="absolute bottom-4 lg:bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-md px-4">
+              <div className="bg-black bg-opacity-50 backdrop-blur-lg rounded-2xl p-3 flex items-center justify-center space-x-3 lg:space-x-4">
                 <button
                   onClick={isLessonActive ? handlePauseLesson : handleStartLesson}
-                  className="w-12 h-12 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform"
+                  className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform"
                 >
-                  {isLessonActive ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
+                  {isLessonActive ? <Pause className="w-5 h-5 lg:w-6 lg:h-6" /> : <Play className="w-5 h-5 lg:w-6 lg:h-6" />}
                 </button>
                 
                 <button
                   onClick={() => setSoundEnabled(!soundEnabled)}
-                  className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white hover:bg-opacity-30 transition-colors"
+                  className="w-8 h-8 lg:w-10 lg:h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white hover:bg-opacity-30 transition-colors"
                 >
-                  {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+                  {soundEnabled ? <Volume2 className="w-4 h-4 lg:w-5 lg:h-5" /> : <VolumeX className="w-4 h-4 lg:w-5 lg:h-5" />}
                 </button>
                 
                 <button
                   onClick={() => setIsListening(!isListening)}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-white transition-colors ${
+                  className={`w-8 h-8 lg:w-10 lg:h-10 rounded-full flex items-center justify-center text-white transition-colors ${
                     isListening ? 'bg-red-500 animate-pulse' : 'bg-white bg-opacity-20 hover:bg-opacity-30'
                   }`}
                 >
-                  {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                  {isListening ? <MicOff className="w-4 h-4 lg:w-5 lg:h-5" /> : <Mic className="w-4 h-4 lg:w-5 lg:h-5" />}
                 </button>
                 
                 <button
                   onClick={() => setIsChatOpen(!isChatOpen)}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-white transition-colors ${
+                  className={`w-8 h-8 lg:w-10 lg:h-10 rounded-full flex items-center justify-center text-white transition-colors ${
                     isChatOpen ? 'bg-green-500' : 'bg-white bg-opacity-20 hover:bg-opacity-30'
                   }`}
                 >
-                  <MessageCircle className="w-5 h-5" />
+                  <MessageCircle className="w-4 h-4 lg:w-5 lg:h-5" />
                 </button>
                 
                 <button
                   onClick={() => setAvatarGender(avatarGender === 'male' ? 'female' : 'male')}
-                  className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white hover:bg-opacity-30 transition-colors"
-                  title={`Switch to ${avatarGender === 'male' ? 'female' : 'male'} avatar`}
+                  className="w-8 h-8 lg:w-10 lg:h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white hover:bg-opacity-30 transition-colors"
+                  title={Switch to ${avatarGender === 'male' ? 'female' : 'male'} avatar}
                 >
-                  <Settings className="w-5 h-5" />
+                  <Settings className="w-4 h-4 lg:w-5 lg:h-5" />
                 </button>
               </div>
             </div>
@@ -274,7 +274,7 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
 
           {/* Real-time Chat Overlay */}
           {isChatOpen && (
-            <div className="absolute top-4 left-4 w-80 h-96 z-20">
+            <div className="absolute top-16 lg:top-4 left-4 right-4 lg:left-4 lg:right-auto lg:w-80 h-96 z-20">
               <RealTimeChat
                 onQuestionAsked={handleQuestionAsked}
                 onClose={() => setIsChatOpen(false)}
@@ -284,7 +284,7 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
         </div>
 
         {/* Right Side - Dynamic Smart Whiteboard */}
-        <div className="w-96 bg-white border-l border-gray-200 flex flex-col">
+        <div className="w-full lg:w-96 bg-white border-t lg:border-l border-gray-200 flex flex-col">
           <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 flex items-center justify-between flex-shrink-0">
             <h2 className="font-bold">Smart Whiteboard</h2>
             <div className="flex items-center space-x-2">
