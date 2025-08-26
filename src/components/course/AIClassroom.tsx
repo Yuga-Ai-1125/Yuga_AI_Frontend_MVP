@@ -28,9 +28,9 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
     const baseSegments = [
       {
         title: 'Introduction',
-        content: Welcome to today's lesson on ${lesson.title}. I'm Professor YUGA, your AI instructor. Today we'll explore the fundamental concepts and practical applications of this topic. Let's begin our journey into ${course.category.toLowerCase()}.,
+        content: `Welcome to today's lesson on ${lesson.title}. I'm Professor YUGA, your AI instructor. Today we'll explore the fundamental concepts and practical applications of this topic. Let's begin our journey into ${course.category.toLowerCase()}.`,
         keyPoints: [
-          Understanding ${lesson.title},
+          `Understanding ${lesson.title}`,
           'Learning objectives for today',
           'Real-world applications',
           'Prerequisites and background'
@@ -39,7 +39,7 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
       },
       {
         title: 'Core Concepts',
-        content: Let's dive into the core concepts. ${lesson.content} This forms the foundation of our understanding. Pay close attention as we break down each component step by step.,
+        content: `Let's dive into the core concepts. ${lesson.content} This forms the foundation of our understanding. Pay close attention as we break down each component step by step.`,
         keyPoints: [
           'Fundamental principles',
           'Key definitions and terminology',
@@ -50,7 +50,7 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
       },
       {
         title: 'Practical Examples',
-        content: Now let's see how these concepts apply in real-world scenarios. I'll walk you through several examples to solidify your understanding and show you practical implementations.,
+        content: `Now let's see how these concepts apply in real-world scenarios. I'll walk you through several examples to solidify your understanding and show you practical implementations.`,
         keyPoints: [
           'Real-world applications',
           'Industry case studies',
@@ -61,7 +61,7 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
       },
       {
         title: 'Interactive Practice',
-        content: Time for some hands-on practice! Let's work through some problems together. Feel free to ask questions at any time using the chat feature or microphone.,
+        content: `Time for some hands-on practice! Let's work through some problems together. Feel free to ask questions at any time using the chat feature or microphone.`,
         keyPoints: [
           'Practice exercises',
           'Step-by-step solutions',
@@ -72,7 +72,7 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
       },
       {
         title: 'Summary & Next Steps',
-        content: Excellent work! Let's summarize what we've learned today and discuss how to apply these concepts moving forward. Remember, practice makes perfect!,
+        content: `Excellent work! Let's summarize what we've learned today and discuss how to apply these concepts moving forward. Remember, practice makes perfect!`,
         keyPoints: [
           'Key takeaways from today',
           'Summary of main concepts',
@@ -136,7 +136,7 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
   const handleQuestionAsked = (question: string) => {
     // Pause lesson when question is asked
     setIsLessonActive(false);
-    setCurrentSpeech(Great question! Let me address that: "${question}". This is an important point that relates to our current topic.);
+    setCurrentSpeech(`Great question! Let me address that: "${question}". This is an important point that relates to our current topic.`);
     
     // Resume lesson after answering
     setTimeout(() => {
@@ -213,7 +213,7 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
                   <div className="w-full bg-gray-700 rounded-full h-2 mb-3">
                     <div
                       className="h-2 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full transition-all duration-1000"
-                      style={{ width: ${lessonProgress}% }}
+                      style={{ width: `${lessonProgress}%` }}
                     />
                   </div>
                   <div className="text-center">
@@ -264,7 +264,7 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
                 <button
                   onClick={() => setAvatarGender(avatarGender === 'male' ? 'female' : 'male')}
                   className="w-8 h-8 lg:w-10 lg:h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white hover:bg-opacity-30 transition-colors"
-                  title={Switch to ${avatarGender === 'male' ? 'female' : 'male'} avatar}
+                  title={`Switch to ${avatarGender === 'male' ? 'female' : 'male'} avatar`}
                 >
                   <Settings className="w-4 h-4 lg:w-5 lg:h-5" />
                 </button>
