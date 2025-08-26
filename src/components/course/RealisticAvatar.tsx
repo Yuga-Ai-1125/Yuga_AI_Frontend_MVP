@@ -236,11 +236,12 @@ export const RealisticAvatar: React.FC<RealisticAvatarProps> = ({
   return (
     <div className="relative flex flex-col items-center">
       {/* 
-        TRANSCRIPT BUBBLE - POSITIONED IN VISIBLE AREA
+        TRANSCRIPT BUBBLE - TEMPORARILY HIDDEN
         Positioned between header and video in the safe visible zone
         Shows complete transcript content in wide bubble without header overlap
+        Currently hidden as requested
       */}
-      {isSpeaking && currentSpeech && (
+      {false && isSpeaking && currentSpeech && (
         <div className="absolute -top-24 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-lg p-4 w-[600px] max-w-[90vw] mx-4 z-30">
           <div className="text-sm text-gray-800 text-center leading-relaxed">
             {currentSpeech}
