@@ -23,12 +23,142 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
   const [whiteboardContent, setWhiteboardContent] = useState<any[]>([]);
   const [avatarGender, setAvatarGender] = useState<'male' | 'female'>('female');
 
+  // Generate subject-specific introduction based on course category
+  const getSubjectIntroduction = (category: string, lessonTitle: string) => {
+    const subjectIntroductions: Record<string, string> = {
+      'Mathematics': `Welcome to today's mathematics lesson. I'm Professor Yuga, your AI mathematics instructor. Mathematics is the language of patterns and relationships, and today we'll explore how these concepts apply to real-world problem solving.`,
+      'Science': `Welcome to today's science lesson. I'm Professor Yuga, your AI science instructor. Science helps us understand the natural world through observation and experimentation, and today we'll discover how these principles work in practice.`,
+      'Social Studies': `Welcome to today's social studies lesson. I'm Professor Yuga, your AI social studies instructor. Social studies helps us understand human societies and our place in the world, and today we'll explore important historical and cultural concepts.`,
+      'Hindi': `नमस्ते! आज के हिंदी पाठ "${lessonTitle}" में आपका स्वागत है। मैं प्रोफेसर युगा हूं, आपकी AI हिंदी शिक्षिका। आज हम हिंदी भाषा की सुंदरता और इसकी सांस्कृतिक महत्व को समझेंगे।`,
+      'English': `Welcome to today's English lesson. I'm Professor Yuga, your AI English instructor. Language is the foundation of communication and expression, and today we'll explore how to use English effectively in various contexts.`,
+      'Physics': `Welcome to today's physics lesson. I'm Professor Yuga, your AI physics instructor. Physics helps us understand the fundamental laws that govern our universe, and today we'll explore how these principles shape our world.`,
+      'Chemistry': `Welcome to today's chemistry lesson. I'm Professor Yuga, your AI chemistry instructor. Chemistry is the science of matter and its transformations, and today we'll discover how these processes work at the molecular level.`,
+      'Biology': `Welcome to today's biology lesson. I'm Professor Yuga, your AI biology instructor. Biology is the study of life in all its forms, and today we'll explore the fascinating processes that sustain living organisms.`,
+      'History': `Welcome to today's history lesson. I'm Professor Yuga, your AI history instructor. History helps us understand our past to make sense of our present, and today we'll examine important events that have shaped our world.`,
+      'Geography': `Welcome to today's geography lesson. I'm Professor Yuga, your AI geography instructor. Geography helps us understand the relationship between people and their environments, and today we'll explore how physical and human systems interact.`,
+      'Economics': `Welcome to today's economics lesson. I'm Professor Yuga, your AI economics instructor. Economics is the study of how societies allocate scarce resources, and today we'll examine fundamental economic principles and their applications.`,
+      'Computer Science': `Welcome to today's computer science lesson. I'm Professor Yuga, your AI computer science instructor. Computer science is the study of computational systems and algorithms, and today we'll explore how these concepts power modern technology.`
+    };
+
+    return subjectIntroductions[category] || `Welcome to today's lesson on ${lessonTitle}. I'm Professor Yuga, your AI instructor. Today we'll explore the fundamental concepts and practical applications of this topic.`;
+  };
+
+  // Generate subject-specific content segments
+  const getSubjectSegments = (category: string) => {
+    const subjectSegments: Record<string, {title: string, keyPoints: string[]}[]> = {
+      'Mathematics': [
+        {
+          title: 'Problem Solving Approach',
+          keyPoints: [
+            'Understanding the problem statement',
+            'Identifying known and unknown variables',
+            'Selecting appropriate formulas and methods',
+            'Step-by-step solution process'
+          ]
+        },
+        {
+          title: 'Concept Application',
+          keyPoints: [
+            'Real-world applications of mathematical concepts',
+            'Connecting theory to practical problems',
+            'Multiple approaches to the same problem',
+            'Common pitfalls and how to avoid them'
+          ]
+        }
+      ],
+      'Science': [
+        {
+          title: 'Scientific Principles',
+          keyPoints: [
+            'Understanding fundamental scientific laws',
+            'Experimental verification of concepts',
+            'Connecting theory to observable phenomena',
+            'Scientific method application'
+          ]
+        },
+        {
+          title: 'Practical Applications',
+          keyPoints: [
+            'Real-world examples of scientific principles',
+            'Technology derived from scientific discoveries',
+            'Environmental and societal impacts',
+            'Future developments in the field'
+          ]
+        }
+      ],
+      'Hindi': [
+        {
+          title: 'भाषा के नियम',
+          keyPoints: [
+            'व्याकरण के मूल सिद्धांत',
+            'वाक्य संरचना और रचना',
+            'शब्दावली विस्तार',
+            'उच्चारण और वर्तनी'
+          ]
+        },
+        {
+          title: 'साहित्यिक समझ',
+          keyPoints: [
+            'पाठ की विषयवस्तु',
+            'लेखक की शैली और दृष्टिकोण',
+            'सांस्कृतिक संदर्भ',
+            'आलोचनात्मक विश्लेषण'
+          ]
+        }
+      ],
+      'English': [
+        {
+          title: 'Language Skills',
+          keyPoints: [
+            'Grammar and syntax rules',
+            'Vocabulary building techniques',
+            'Reading comprehension strategies',
+            'Effective communication skills'
+          ]
+        },
+        {
+          title: 'Literary Analysis',
+          keyPoints: [
+            'Understanding literary devices',
+            'Theme and character analysis',
+            'Contextual interpretation',
+            'Critical thinking about texts'
+          ]
+        }
+      ]
+    };
+
+    return subjectSegments[category] || [
+      {
+        title: 'Core Concepts',
+        keyPoints: [
+          'Fundamental principles',
+          'Key definitions and terminology',
+          'Important relationships',
+          'Common patterns and structures'
+        ]
+      },
+      {
+        title: 'Practical Applications',
+        keyPoints: [
+          'Real-world applications',
+          'Industry case studies',
+          'Problem-solving approaches',
+          'Best practices and guidelines'
+        ]
+      }
+    ];
+  };
+
   // Generate lesson segments based on the selected course/lesson
   const generateLessonSegments = () => {
+    const subjectIntro = getSubjectIntroduction(course.category, lesson.title);
+    const subjectSpecificSegments = getSubjectSegments(course.category);
+    
     const baseSegments = [
       {
         title: 'Introduction',
-        content: `Welcome to today's lesson on ${lesson.title}. I'm Professor YUGA, your AI instructor. Today we'll explore the fundamental concepts and practical applications of this topic. Let's begin our journey into ${course.category.toLowerCase()}.`,
+        content: subjectIntro,
         keyPoints: [
           `Understanding ${lesson.title}`,
           'Learning objectives for today',
@@ -38,25 +168,15 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
         duration: 8000 // 8 seconds for demo
       },
       {
-        title: 'Core Concepts',
+        title: subjectSpecificSegments[0].title,
         content: `Let's dive into the core concepts. ${lesson.content} This forms the foundation of our understanding. Pay close attention as we break down each component step by step.`,
-        keyPoints: [
-          'Fundamental principles',
-          'Key definitions and terminology',
-          'Important relationships',
-          'Common patterns and structures'
-        ],
+        keyPoints: subjectSpecificSegments[0].keyPoints,
         duration: 10000 // 10 seconds
       },
       {
-        title: 'Practical Examples',
+        title: subjectSpecificSegments[1].title,
         content: `Now let's see how these concepts apply in real-world scenarios. I'll walk you through several examples to solidify your understanding and show you practical implementations.`,
-        keyPoints: [
-          'Real-world applications',
-          'Industry case studies',
-          'Problem-solving approaches',
-          'Best practices and guidelines'
-        ],
+        keyPoints: subjectSpecificSegments[1].keyPoints,
         duration: 9000 // 9 seconds
       },
       {
@@ -84,12 +204,17 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
     ];
 
     // Customize content based on course category
-    if (course.category === 'Technology') {
+    if (course.category === 'Technology' || course.category === 'Computer Science') {
       baseSegments[1].content += ' We\'ll explore algorithms, data structures, and implementation details.';
       baseSegments[2].keyPoints.push('Code examples and implementations');
-    } else if (course.category === 'Business') {
+    } else if (course.category === 'Business' || course.category === 'Economics') {
       baseSegments[1].content += ' We\'ll analyze market trends, strategies, and business models.';
       baseSegments[2].keyPoints.push('Market analysis and case studies');
+    } else if (course.category === 'Hindi') {
+      baseSegments[1].content = 'आइए अब मूल अवधारणाओं में गहराई से जाएं। यह हमारी समझ की नींव बनाता है। कृपया ध्यान दें क्योंकि हम प्रत्येक घटक को चरण दर चरण तोड़ते हैं।';
+      baseSegments[2].content = 'अब आइए देखें कि ये अवधारणाएं वास्तविक दुनिया के परिदृश्यों में कैसे लागू होती हैं। मैं आपके साथ कई उदाहरणों से गुजरूंगा ताकि आपकी समझ को मजबूत किया जा सके और व्यावहारिक कार्यान्वयन दिखाया जा सके।';
+      baseSegments[3].content = 'अब कुछ व्यावहारिक अभ्यास का समय आ गया है! आइए मिलकर कुछ समस्याओं पर काम करें। चैट सुविधा या माइक्रोफोन का उपयोग करके किसी भी समय प्रश्न पूछने में संकोच न करें।';
+      baseSegments[4].content = 'उत्कृष्ट काम! आइए आज हमने जो सीखा है उसका सारांश दें और चर्चा करें कि आगे बढ़ने के लिए इन अवधारणाओं को कैसे लागू किया जाए। याद रखें, अभ्यास परिपूर्ण बनाता है!';
     }
 
     return baseSegments;
