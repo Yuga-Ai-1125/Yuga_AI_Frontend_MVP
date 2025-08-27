@@ -588,14 +588,14 @@ function MainApp() {
                               index: number
                             ) => (
                               <div
-                                key={${lesson.id}-${index}}
+                                key={`${lesson.id}-${index}`}
                                 className="bg-white rounded-lg shadow-md overflow-hidden"
                               >
                                 <img
                                   src={image.url}
                                   alt={
                                     image.alt ||
-                                    ${lesson.title} image ${index + 1}
+                                    `${lesson.title} image ${index + 1}`
                                   }
                                   className="w-full h-40 object-cover"
                                 />
@@ -1393,7 +1393,7 @@ function MainApp() {
                 <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                   <p className="text-blue-800">
                     {filteredCourses.length === 0
-                      ? No courses found for "${courseSearchQuery}"
+                      ? `No courses found for "${courseSearchQuery}"`
                       : `Found ${filteredCourses.length} course${
                           filteredCourses.length === 1 ? "" : "s"
                         } matching "${courseSearchQuery}"`}
@@ -1430,3 +1430,191 @@ function MainApp() {
                     className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
                   >
                     Show All Courses
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Quick Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-600 text-sm">Courses in Progress</p>
+                    <p className="text-2xl font-bold text-gray-900">3</p>
+                  </div>
+                  <BookOpen className="w-8 h-8 text-purple-600" />
+                </div>
+              </div>
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-600 text-sm">Learning Streak</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {user?.progress.currentStreak ?? 0} days
+                    </p>
+                  </div>
+                  <Award className="w-8 h-8 text-emerald-600" />
+                </div>
+              </div>
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-600 text-sm">Hours This Week</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {user?.progress.weeklyProgress ?? 0}
+                    </p>
+                  </div>
+                  <BarChart3 className="w-8 h-8 text-blue-600" />
+                </div>
+              </div>
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-600 text-sm">Certificates</p>
+                    <p className="text-2xl font-bold text-gray-900">1</p>
+                  </div>
+                  <Trophy className="w-8 h-8 text-yellow-600" />
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+    }
+  };
+
+  // Helper function to get subject color for UI elements
+  const getSubjectColor = (subject: string) => {
+    const colors: Record<string, string> = {
+      Mathematics: "bg-purple-500",
+      Science: "bg-green-500",
+      English: "bg-blue-500",
+      Hindi: "bg-yellow-500",
+      "Social Science": "bg-red-500",
+      "Computer Applications": "bg-indigo-500",
+    };
+    return colors[subject] || "bg-gray-500";
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Navigation component */}
+      <Navigation
+        isAuthenticated={isAuthenticated}
+        user={user}
+        activeView={activeView}
+        setActiveView={setActiveView}
+        navigation={navigation}
+        isMobileMenuOpen={isMobileMenuOpen}
+        setIsMobileMenuOpen={setIsMobileMenuOpen}
+        handleAuthAction={handleAuthAction}
+        setIsDoubtSolverOpen={setIsDoubtSolverOpen}
+        setIsChatOpen={setIsChatOpen}
+        setIsProfileModalOpen={setIsProfileModalOpen}
+      />
+
+      {/* Main Content */}
+      <main className="flex-1">
+        {isAuthenticated ? (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {renderContent()}
+          </div>
+        ) : (
+          renderContent()
+        )}
+      </main>
+
+      {/* Footer */}
+      <Footer />
+
+      {/* Modals and Overlays */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        initialMode={authModalMode}
+      />
+
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+      />
+
+      {/* AI Classroom modal when a course and lesson are selected */}
+      {selectedCourse && selectedLesson && (
+        <AIClassroom
+          course={selectedCourse}
+          lesson={selectedLesson}
+          isOpen={true}
+          onClose={() => {
+            setSelectedCourse(null);
+            setSelectedLesson(null);
+          }}
+        />
+      )}
+
+      {/* Doubt solver modal */}
+      <DoubtSolver
+        isOpen={isDoubtSolverOpen}
+        onClose={() => setIsDoubtSolverOpen(false)}
+      />
+
+      {/* Chat Interface */}
+      {isAuthenticated && (
+        <ChatInterface
+          isOpen={isChatOpen}
+          onClose={() => setIsChatOpen(false)}
+        />
+      )}
+
+      {/* Floating Chat Button - Only show when authenticated and chat is closed */}
+      {isAuthenticated && !isChatOpen && (
+        <button
+          onClick={() => setIsChatOpen(true)}
+          className="fixed bottom-6 right-6 bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 rounded-full shadow-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 hover:scale-110 z-40"
+        >
+          <MessageCircle className="w-6 h-6" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+// Main App component with routing and authentication provider
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<MainApp />} />
+          <Route
+            path="/reset-password/:token"
+            element={<ResetPasswordPage />}
+          />
+
+          {/* Company pages */}
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/mission" element={<OurMission />} />
+          <Route path="/careers" element={<Careers />} />
+          <Route path="/press" element={<Press />} />
+          
+          {/* Support pages */}
+          <Route path="/help" element={<HelpCenter />} />
+          <Route path="/contact" element={<ContactUs />} />
+          <Route path="/status" element={<SystemStatus />} />
+          <Route path="/community" element={<Community />} />
+          
+          {/* Legal pages */}
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/cookies" element={<CookiePolicy />} />
+          <Route path="/gdpr" element={<GDPR />} />
+          
+          {/* Catch-all route redirects to home */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
+  );
+}
+
+export default App;
