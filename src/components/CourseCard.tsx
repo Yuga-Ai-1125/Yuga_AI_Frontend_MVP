@@ -72,8 +72,12 @@ const CourseCard: React.FC<CourseCardProps> = ({
       setLoading(true);
       const response = await api.get<RawCourse[]>("/course/courses");
       const transformed = response.data.map(transformCourse);
-      setCourses(transformed);
-      setFilteredCourses(transformed);
+      
+      // Filter out Hindi courses
+      const filtered = transformed.filter(course => course.category !== "Hindi");
+      
+      setCourses(filtered);
+      setFilteredCourses(filtered);
     } catch (error) {
       console.error("Failed to fetch courses:", error);
     } finally {
