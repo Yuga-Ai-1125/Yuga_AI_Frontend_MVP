@@ -26,21 +26,21 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
   // Generate subject-specific introduction based on course category
   const getSubjectIntroduction = (category: string, lessonTitle: string) => {
     const subjectIntroductions: Record<string, string> = {
-      'Mathematics': `Welcome to today's mathematics lesson. I'm Professor Yuga, your AI mathematics instructor. Mathematics is the language of patterns and relationships, and today we'll explore how these concepts apply to real-world problem solving.`,
-      'Science': `Welcome to today's science lesson. I'm Professor Yuga, your AI science instructor. Science helps us understand the natural world through observation and experimentation, and today we'll discover how these principles work in practice.`,
-      'Social Studies': `Welcome to today's social studies lesson. I'm Professor Yuga, your AI social studies instructor. Social studies helps us understand human societies and our place in the world, and today we'll explore important historical and cultural concepts.`,
+      'Mathematics': `Welcome to today's mathematics lesson. I'm Professor Alex, your AI mathematics instructor. Mathematics is the language of patterns and relationships, and today we'll explore how these concepts apply to real-world problem solving.`,
+      'Science': `Welcome to today's science lesson. I'm Professor Alex, your AI science instructor. Science helps us understand the natural world through observation and experimentation, and today we'll discover how these principles work in practice.`,
+      'Social Studies': `Welcome to today's social studies lesson. I'm Professor Alex, your AI social studies instructor. Social studies helps us understand human societies and our place in the world, and today we'll explore important historical and cultural concepts.`,
       'Hindi': `नमस्ते! आज के हिंदी पाठ "${lessonTitle}" में आपका स्वागत है। मैं प्रोफेसर युगा हूं, आपकी AI हिंदी शिक्षिका। आज हम हिंदी भाषा की सुंदरता और इसकी सांस्कृतिक महत्व को समझेंगे।`,
-      'English': `Welcome to today's English lesson. I'm Professor Yuga, your AI English instructor. Language is the foundation of communication and expression, and today we'll explore how to use English effectively in various contexts.`,
-      'Physics': `Welcome to today's physics lesson. I'm Professor Yuga, your AI physics instructor. Physics helps us understand the fundamental laws that govern our universe, and today we'll explore how these principles shape our world.`,
-      'Chemistry': `Welcome to today's chemistry lesson. I'm Professor Yuga, your AI chemistry instructor. Chemistry is the science of matter and its transformations, and today we'll discover how these processes work at the molecular level.`,
-      'Biology': `Welcome to today's biology lesson. I'm Professor Yuga, your AI biology instructor. Biology is the study of life in all its forms, and today we'll explore the fascinating processes that sustain living organisms.`,
-      'History': `Welcome to today's history lesson. I'm Professor Yuga, your AI history instructor. History helps us understand our past to make sense of our present, and today we'll examine important events that have shaped our world.`,
-      'Geography': `Welcome to today's geography lesson. I'm Professor Yuga, your AI geography instructor. Geography helps us understand the relationship between people and their environments, and today we'll explore how physical and human systems interact.`,
-      'Economics': `Welcome to today's economics lesson. I'm Professor Yuga, your AI economics instructor. Economics is the study of how societies allocate scarce resources, and today we'll examine fundamental economic principles and their applications.`,
-      'Computer Science': `Welcome to today's computer science lesson. I'm Professor Yuga, your AI computer science instructor. Computer science is the study of computational systems and algorithms, and today we'll explore how these concepts power modern technology.`
+      'English': `Welcome to today's English lesson. I'm Professor Alex, your AI English instructor. Language is the foundation of communication and expression, and today we'll explore how to use English effectively in various contexts.`,
+      'Physics': `Welcome to today's physics lesson. I'm Professor Alex, your AI physics instructor. Physics helps us understand the fundamental laws that govern our universe, and today we'll explore how these principles shape our world.`,
+      'Chemistry': `Welcome to today's chemistry lesson. I'm Professor Alex, your AI chemistry instructor. Chemistry is the science of matter and its transformations, and today we'll discover how these processes work at the molecular level.`,
+      'Biology': `Welcome to today's biology lesson. I'm Professor Alex, your AI biology instructor. Biology is the study of life in all its forms, and today we'll explore the fascinating processes that sustain living organisms.`,
+      'History': `Welcome to today's history lesson. I'm Professor Alex, your AI history instructor. History helps us understand our past to make sense of our present, and today we'll examine important events that have shaped our world.`,
+      'Geography': `Welcome to today's geography lesson. I'm Professor Alex, your AI geography instructor. Geography helps us understand the relationship between people and their environments, and today we'll explore how physical and human systems interact.`,
+      'Economics': `Welcome to today's economics lesson. I'm Professor Alex, your AI economics instructor. Economics is the study of how societies allocate scarce resources, and today we'll examine fundamental economic principles and their applications.`,
+      'Computer Science': `Welcome to today's computer science lesson. I'm Professor Alex, your AI computer science instructor. Computer science is the study of computational systems and algorithms, and today we'll explore how these concepts power modern technology.`
     };
 
-    return subjectIntroductions[category] || `Welcome to today's lesson on ${lessonTitle}. I'm Professor Yuga, your AI instructor. Today we'll explore the fundamental concepts and practical applications of this topic.`;
+    return subjectIntroductions[category] || `Welcome to today's lesson on ${lessonTitle}. I'm Professor Alex, your AI instructor. Today we'll explore the fundamental concepts and practical applications of this topic.`;
   };
 
   // Generate subject-specific content segments
