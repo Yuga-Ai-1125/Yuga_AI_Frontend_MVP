@@ -122,6 +122,8 @@ export const RealisticAvatar = forwardRef<RealisticAvatarHandle, RealisticAvatar
 
       audioElement.onplay = () => {
         setIsSpeaking(true);
+        // Reset the pause flag when new audio starts (including doubt responses)
+        setHasPausedAfterContinueLearning(false);
         // Ensure video is playing
         if (video && video.paused) {
           video.play().catch(error => {
@@ -299,6 +301,8 @@ export const RealisticAvatar = forwardRef<RealisticAvatarHandle, RealisticAvatar
 
     utterance.onstart = () => {
       setIsSpeaking(true);
+      // Reset the pause flag when new speech starts (including doubt responses)
+      setHasPausedAfterContinueLearning(false);
       // Ensure video is playing
       const video = videoRef.current;
       if (video && video.paused && isTeaching) {
@@ -315,6 +319,13 @@ export const RealisticAvatar = forwardRef<RealisticAvatarHandle, RealisticAvatar
       if (isContinueLearningSpeech) {
         setShouldPauseAfterSpeech(true);
         setHasPausedAfterContinueLearning(true);
+        const video = videoRef.current;
+        if (video) {
+          video.pause();
+        }
+      } else {
+        // For all other speeches (including doubt responses), pause the video
+        // This ensures the video stops after clearing doubts asked after the quiz
         const video = videoRef.current;
         if (video) {
           video.pause();
