@@ -24,6 +24,8 @@ const getSubjectColor = (subject: string) => {
     Hindi: "bg-yellow-500",
     "Social Science": "bg-red-500",
     "Computer Applications": "bg-indigo-500",
+    // NEW: NEET color
+    NEET: "bg-teal-500",
   };
   return colors[subject] || "bg-gray-500";
 };
@@ -72,12 +74,41 @@ const CourseCard: React.FC<CourseCardProps> = ({
       setLoading(true);
       const response = await api.get<RawCourse[]>("/course/courses");
       const transformed = response.data.map(transformCourse);
-      
-      // Filter out Hindi courses
-      const filtered = transformed.filter(course => course.category !== "Hindi");
-      
-      setCourses(filtered);
-      setFilteredCourses(filtered);
+
+      // Filter out Hindi courses (existing behavior)
+      const filtered = transformed.filter(
+        (course) => course.category !== "Hindi"
+      );
+
+      // --- ADD NEET (5th subject) WITHOUT CHANGING ANYTHING ELSE ---
+      // Only add if it's not already present from the backend.
+      const hasNEET = filtered.some((c) => c.category === "NEET");
+      const finalList = [...filtered];
+
+      if (!hasNEET) {
+        // Create a NEET course consistent with existing structure
+        const neetRaw: RawCourse = {
+          id: "neet-001",
+          name: "NEET",
+          image: "", // keeping images disabled in UI (commented img tag), so empty is fine
+          chapters: 12, // example chapter count
+          duration: 240, // total minutes
+        };
+
+        // Use current length as the index so level distribution stays consistent
+        const neetTransformed = transformCourse(neetRaw, finalList.length);
+        // Adjust description/tags slightly for NEET
+        neetTransformed.description =
+          "NEET includes 12 chapters across Physics, Chemistry, and Biology.";
+        neetTransformed.tags = ["NEET", "PCB", "Exam Prep"];
+
+        // Place NEET as the 5th subject visually (append to current list)
+        finalList.push(neetTransformed);
+      }
+      // -------------------------------------------------------------
+
+      setCourses(finalList);
+      setFilteredCourses(finalList);
     } catch (error) {
       console.error("Failed to fetch courses:", error);
     } finally {
@@ -144,9 +175,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
               alt={course.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             /> */}
-            <div
-              className={`absolute inset-0 ${course.color} opacity-10`}
-            ></div>
+            <div className={`absolute inset-0 ${course.color} opacity-10`}></div>
 
             <div className="absolute top-4 right-4">
               <span
