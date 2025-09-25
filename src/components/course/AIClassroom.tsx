@@ -1,9 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, Volume2, VolumeX, Mic, MicOff, MessageCircle, Download, Maximize, Settings, Users, Clock, BookOpen } from 'lucide-react';
+// AIClassroom.tsx
+import React, { useState, useRef } from 'react';
+import { Play, Pause, Volume2, VolumeX, MessageCircle, Download, Maximize, Settings, Users, Clock, BookOpen, HelpCircle } from 'lucide-react';
 import { Course, Lesson } from '../../types';
 import { RealisticAvatar } from './RealisticAvatar';
 import DynamicWhiteboard from './DynamicWhiteboard';
 import { RealTimeChat } from './RealTimeChat';
+import { MCQPopup } from './MCQPopup';
+import { VoiceAssistant } from "../voice/VoiceAssistant";
+
+interface MCQQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correctAnswer: string;
+  explanation?: string;
+  subject: string;
+}
 
 interface AIClassroomProps {
   course: Course;
@@ -12,270 +24,376 @@ interface AIClassroomProps {
   onClose: () => void;
 }
 
+// Helper function to normalize course category for backend
+const normalizeCategory = (category: string): string => {
+  const cat = category.toLowerCase().replace(/\s+/g, '');
+  if (cat === 'neet') return 'NEET';
+  if (cat === 'mathematics' || cat === 'math') return 'Mathematics';
+  if (cat === 'science') return 'Science';
+  if (cat === 'socialscience') return 'SocialScience';
+  if (cat === 'english') return 'English';
+  if (cat === 'hindi') return 'Hindi';
+  if (cat === 'computerscience') return 'ComputerScience';
+  return 'NEET'; // default fallback
+};
+
 export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen, onClose }) => {
   const [isLessonActive, setIsLessonActive] = useState(false);
   const [currentSegment, setCurrentSegment] = useState(0);
   const [lessonProgress, setLessonProgress] = useState(0);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [isListening, setIsListening] = useState(false);
   const [currentSpeech, setCurrentSpeech] = useState('');
   const [whiteboardContent, setWhiteboardContent] = useState<any[]>([]);
   const [avatarGender, setAvatarGender] = useState<'male' | 'female'>('female');
+  const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
 
-  // Generate subject-specific introduction based on course category
-  const getSubjectIntroduction = (category: string, lessonTitle: string) => {
-    const subjectIntroductions: Record<string, string> = {
-      'Mathematics': `Welcome to today's mathematics lesson. I'm Professor Alex, your AI mathematics instructor. Mathematics is the language of patterns and relationships, and today we'll explore how these concepts apply to real-world problem solving.`,
-      'Science': `Welcome to today's science lesson. I'm Professor Alex, your AI science instructor. Science helps us understand the natural world through observation and experimentation, and today we'll discover how these principles work in practice.`,
-      'Social Studies': `Welcome to today's social studies lesson. I'm Professor Alex, your AI social studies instructor. Social studies helps us understand human societies and our place in the world, and today we'll explore important historical and cultural concepts.`,
-      'Hindi': `नमस्ते! आज के हिंदी पाठ "${lessonTitle}" में आपका स्वागत है। मैं प्रोफेसर युगा हूं, आपकी AI हिंदी शिक्षिका। आज हम हिंदी भाषा की सुंदरता और इसकी सांस्कृतिक महत्व को समझेंगे।`,
-      'English': `Welcome to today's English lesson. I'm Professor Alex, your AI English instructor. Language is the foundation of communication and expression, and today we'll explore how to use English effectively in various contexts.`,
-      'Physics': `Welcome to today's physics lesson. I'm Professor Alex, your AI physics instructor. Physics helps us understand the fundamental laws that govern our universe, and today we'll explore how these principles shape our world.`,
-      'Chemistry': `Welcome to today's chemistry lesson. I'm Professor Alex, your AI chemistry instructor. Chemistry is the science of matter and its transformations, and today we'll discover how these processes work at the molecular level.`,
-      'Biology': `Welcome to today's biology lesson. I'm Professor Alex, your AI biology instructor. Biology is the study of life in all its forms, and today we'll explore the fascinating processes that sustain living organisms.`,
-      'History': `Welcome to today's history lesson. I'm Professor Alex, your AI history instructor. History helps us understand our past to make sense of our present, and today we'll examine important events that have shaped our world.`,
-      'Geography': `Welcome to today's geography lesson. I'm Professor Alex, your AI geography instructor. Geography helps us understand the relationship between people and their environments, and today we'll explore how physical and human systems interact.`,
-      'Economics': `Welcome to today's economics lesson. I'm Professor Alex, your AI economics instructor. Economics is the study of how societies allocate scarce resources, and today we'll examine fundamental economic principles and their applications.`,
-      'Computer Science': `Welcome to today's computer science lesson. I'm Professor Alex, your AI computer science instructor. Computer science is the study of computational systems and algorithms, and today we'll explore how these concepts power modern technology.`
+  // MCQ functionality
+  const [showMCQ, setShowMCQ] = useState(false);
+  const [currentMCQIndex, setCurrentMCQIndex] = useState(0);
+  const [mcqQuestions, setMCQQuestions] = useState<MCQQuestion[]>([]);
+  const [mcqAnswered, setMCQAnswered] = useState(false);
+  const [hasShownMCQ, setHasShownMCQ] = useState(false);
+  const [waitingForSpeech, setWaitingForSpeech] = useState(false);
+  const [isQuizComplete, setIsQuizComplete] = useState(false);
+  const [isFeedbackGiven, setIsFeedbackGiven] = useState(false);
+
+  // Ref to access RealisticAvatar methods
+  const avatarRef = useRef<any>(null);
+
+  const generateMCQForSubject = (courseCategory: string): MCQQuestion[] => {
+    const subjectMapping: Record<string, string> = {
+      'Mathematics': 'Mathematics',
+      'Math': 'Mathematics',
+      'Science': 'Science',
+      'Physics': 'Science',
+      'Chemistry': 'Science',
+      'Biology': 'Science',
+      'Social Science': 'Social Science',
+      'History': 'Social Science',
+      'Geography': 'Social Science',
+      'English': 'English',
+      'Literature': 'English',
+      'Language Arts': 'English',
+      'NEET': 'NEET'
     };
 
-    return subjectIntroductions[category] || `Welcome to today's lesson on ${lessonTitle}. I'm Professor Alex, your AI instructor. Today we'll explore the fundamental concepts and practical applications of this topic.`;
-  };
+    const subject = subjectMapping[courseCategory] || 'Mathematics';
 
-  // Generate subject-specific content segments
-  const getSubjectSegments = (category: string) => {
-    const subjectSegments: Record<string, {title: string, keyPoints: string[]}[]> = {
+    const mcqQuestions: Record<string, MCQQuestion[]> = {
       'Mathematics': [
         {
-          title: 'Problem Solving Approach',
-          keyPoints: [
-            'Understanding the problem statement',
-            'Identifying known and unknown variables',
-            'Selecting appropriate formulas and methods',
-            'Step-by-step solution process'
-          ]
+          id: 'MATH-MCQ-1',
+          question: 'What is the value of √16?',
+          options: ['2', '4', '8', '16'],
+          correctAnswer: '4',
+          explanation: '√16 = 4 because 4 × 4 = 16. The square root of a number is the value that, when multiplied by itself, gives the original number.',
+          subject: 'Mathematics'
         },
         {
-          title: 'Concept Application',
-          keyPoints: [
-            'Real-world applications of mathematical concepts',
-            'Connecting theory to practical problems',
-            'Multiple approaches to the same problem',
-            'Common pitfalls and how to avoid them'
-          ]
+          id: 'MATH-MCQ-2',
+          question: 'If 2x + 5 = 15, what is the value of x?',
+          options: ['3', '5', '7', '10'],
+          correctAnswer: '5',
+          explanation: 'To solve 2x + 5 = 15, subtract 5 from both sides: 2x = 10, then divide by 2: x = 5.',
+          subject: 'Mathematics'
         }
       ],
       'Science': [
         {
-          title: 'Scientific Principles',
-          keyPoints: [
-            'Understanding fundamental scientific laws',
-            'Experimental verification of concepts',
-            'Connecting theory to observable phenomena',
-            'Scientific method application'
-          ]
+          id: 'SCI-MCQ-1',
+          question: 'What is the chemical symbol for water?',
+          options: ['H₂O', 'CO₂', 'O₂', 'H₂'],
+          correctAnswer: 'H₂O',
+          explanation: 'Water has the chemical formula H₂O, indicating it contains two hydrogen atoms bonded to one oxygen atom.',
+          subject: 'Science'
         },
         {
-          title: 'Practical Applications',
-          keyPoints: [
-            'Real-world examples of scientific principles',
-            'Technology derived from scientific discoveries',
-            'Environmental and societal impacts',
-            'Future developments in the field'
-          ]
+          id: 'SCI-MCQ-2',
+          question: 'Which planet is closest to the Sun?',
+          options: ['Venus', 'Mercury', 'Earth', 'Mars'],
+          correctAnswer: 'Mercury',
+          explanation: 'Mercury is the innermost planet in our solar system, orbiting closest to the Sun.',
+          subject: 'Science'
         }
       ],
-      'Hindi': [
+      'Social Science': [
         {
-          title: 'भाषा के नियम',
-          keyPoints: [
-            'व्याकरण के मूल सिद्धांत',
-            'वाक्य संरचना और रचना',
-            'शब्दावली विस्तार',
-            'उच्चारण और वर्तनी'
-          ]
-        },
-        {
-          title: 'साहित्यिक समझ',
-          keyPoints: [
-            'पाठ की विषयवस्तु',
-            'लेखक की शैली और दृष्टिकोण',
-            'सांस्कृतिक संदर्भ',
-            'आलोचनात्मक विश्लेषण'
-          ]
+          id: 'SS-MCQ-1',
+          question: 'In which year did World War II end?',
+          options: ['1944', '1945', '1946', '1947'],
+          correctAnswer: '1945',
+          explanation: 'World War II ended in 1945 with the surrender of Germany in May and Japan in September.',
+          subject: 'Social Science'
         }
       ],
       'English': [
         {
-          title: 'Language Skills',
-          keyPoints: [
-            'Grammar and syntax rules',
-            'Vocabulary building techniques',
-            'Reading comprehension strategies',
-            'Effective communication skills'
-          ]
-        },
-        {
-          title: 'Literary Analysis',
-          keyPoints: [
-            'Understanding literary devices',
-            'Theme and character analysis',
-            'Contextual interpretation',
-            'Critical thinking about texts'
-          ]
+          id: 'ENG-MCQ-1',
+          question: 'Who wrote "Romeo and Juliet"?',
+          options: ['Charles Dickens', 'William Shakespeare', 'Jane Austen', 'Mark Twain'],
+          correctAnswer: 'William Shakespeare',
+          explanation: '"Romeo and Juliet" is one of William Shakespeare\'s most famous plays.',
+          subject: 'English'
         }
-      ]
+      ],
+      'NEET': [
+      {
+        id: 'NEET-MCQ-1',
+        question: 'Which of the following is a fundamental force in nature?',
+        options: ['Gravitational force', 'Frictional force', 'Tension', 'Normal force'],
+        correctAnswer: 'Gravitational force',
+        explanation: 'Gravitational force is one of the four fundamental forces of nature. Friction, tension, and normal force are contact forces and not fundamental.',
+        subject: 'NEET'
+      },
+      {
+        id: 'NEET-MCQ-2',
+        question: 'Which law states that energy cannot be created or destroyed?',
+        options: ['Law of conservation of energy', 'Newton second law', 'Hooke law', 'Faraday law'],
+        correctAnswer: 'Law of conservation of energy',
+        explanation: 'The law of conservation of energy states that the total energy of an isolated system remains constant. Energy can only change from one form to another.',
+        subject: 'NEET'
+      },
+      {
+        id: 'NEET-MCQ-3',
+        question: 'Which of the following is the SI unit of power?',
+        options: ['Watt', 'Joule', 'Newton', 'Pascal'],
+        correctAnswer: 'Watt',
+        explanation: 'Power is the rate of doing work and its SI unit is Watt. One Watt equals one Joule per second.',
+        subject: 'NEET'
+      },
+      {
+        id: 'NEET-MCQ-4',
+        question: 'Which of the following is a strong acid?',
+        options: ['Hydrochloric acid', 'Acetic acid', 'Carbonic acid', 'Citric acid'],
+        correctAnswer: 'Hydrochloric acid',
+        explanation: 'Hydrochloric acid is a strong acid as it dissociates completely in water, whereas the others are weak acids.',
+        subject: 'NEET'
+      },
+      {
+        id: 'NEET-MCQ-5',
+        question: 'Which element has the highest electronegativity?',
+        options: ['Fluorine', 'Oxygen', 'Chlorine', 'Nitrogen'],
+        correctAnswer: 'Fluorine',
+        explanation: 'Fluorine has the highest electronegativity because it has a small size and high tendency to attract electrons.',
+        subject: 'NEET'
+      },
+      {
+        id: 'NEET-MCQ-6',
+        question: 'Which of the following is an example of a covalent compound?',
+        options: ['Water', 'Sodium chloride', 'Calcium oxide', 'Potassium bromide'],
+        correctAnswer: 'Water',
+        explanation: 'Water is a covalent compound because the atoms share electrons to form bonds. The others are mainly ionic compounds.',
+        subject: 'NEET'
+      },
+      {
+        id: 'NEET-MCQ-7',
+        question: 'Which plant tissue provides mechanical support and flexibility to young stems and leaves?',
+        options: ['Collenchyma', 'Parenchyma', 'Sclerenchyma', 'Xylem'],
+        correctAnswer: 'Collenchyma',
+        explanation: 'Collenchyma cells have unevenly thickened walls which provide support and flexibility to growing plant parts.',
+        subject: 'NEET'
+      },
+      {
+        id: 'NEET-MCQ-8',
+        question: 'Which plant hormone is responsible for cell elongation and bending towards light?',
+        options: ['Auxin', 'Gibberellin', 'Cytokinin', 'Abscisic acid'],
+        correctAnswer: 'Auxin',
+        explanation: 'Auxin promotes cell elongation and helps plants bend towards light, a phenomenon called phototropism.',
+        subject: 'NEET'
+      },
+      {
+        id: 'NEET-MCQ-9',
+        question: 'Which part of human brain controls heart rate and breathing?',
+        options: ['Medulla oblongata', 'Cerebellum', 'Cerebrum', 'Hypothalamus'],
+        correctAnswer: 'Medulla oblongata',
+        explanation: 'Medulla oblongata controls autonomic functions like heart rate, breathing, and blood pressure.',
+        subject: 'NEET'
+      },
+      {
+        id: 'NEET-MCQ-10',
+        question: 'Which blood cells produce antibodies to fight infections?',
+        options: ['B lymphocytes', 'T lymphocytes', 'Red blood cells', 'Platelets'],
+        correctAnswer: 'B lymphocytes',
+        explanation: 'B lymphocytes are responsible for producing antibodies as part of the immune response.',
+        subject: 'NEET'
+      }
+]
+
     };
 
-    return subjectSegments[category] || [
-      {
-        title: 'Core Concepts',
-        keyPoints: [
-          'Fundamental principles',
-          'Key definitions and terminology',
-          'Important relationships',
-          'Common patterns and structures'
-        ]
-      },
-      {
-        title: 'Practical Applications',
-        keyPoints: [
-          'Real-world applications',
-          'Industry case studies',
-          'Problem-solving approaches',
-          'Best practices and guidelines'
-        ]
-      }
-    ];
+    return mcqQuestions[subject] || mcqQuestions['Mathematics'];
   };
 
-  // Generate lesson segments based on the selected course/lesson
-  const generateLessonSegments = () => {
-    const subjectIntro = getSubjectIntroduction(course.category, lesson.title);
-    const subjectSpecificSegments = getSubjectSegments(course.category);
-    
-    const baseSegments = [
-      {
-        title: 'Introduction',
-        content: subjectIntro,
-        keyPoints: [
-          `Understanding ${lesson.title}`,
-          'Learning objectives for today',
-          'Real-world applications',
-          'Prerequisites and background'
-        ],
-        duration: 8000 // 8 seconds for demo
-      },
-      {
-        title: subjectSpecificSegments[0].title,
-        content: `Let's dive into the core concepts. ${lesson.content} This forms the foundation of our understanding. Pay close attention as we break down each component step by step.`,
-        keyPoints: subjectSpecificSegments[0].keyPoints,
-        duration: 10000 // 10 seconds
-      },
-      {
-        title: subjectSpecificSegments[1].title,
-        content: `Now let's see how these concepts apply in real-world scenarios. I'll walk you through several examples to solidify your understanding and show you practical implementations.`,
-        keyPoints: subjectSpecificSegments[1].keyPoints,
-        duration: 9000 // 9 seconds
-      },
-      {
-        title: 'Interactive Practice',
-        content: `Time for some hands-on practice! Let's work through some problems together. Feel free to ask questions at any time using the chat feature or microphone.`,
-        keyPoints: [
-          'Practice exercises',
-          'Step-by-step solutions',
-          'Common mistakes to avoid',
-          'Tips and optimization techniques'
-        ],
-        duration: 8000 // 8 seconds
-      },
-      {
-        title: 'Summary & Next Steps',
-        content: `Excellent work! Let's summarize what we've learned today and discuss how to apply these concepts moving forward. Remember, practice makes perfect!`,
-        keyPoints: [
-          'Key takeaways from today',
-          'Summary of main concepts',
-          'Next lesson preview',
-          'Recommended practice exercises'
-        ],
-        duration: 7000 // 7 seconds
-      }
-    ];
-
-    // Customize content based on course category
-    if (course.category === 'Technology' || course.category === 'Computer Science') {
-      baseSegments[1].content += ' We\'ll explore algorithms, data structures, and implementation details.';
-      baseSegments[2].keyPoints.push('Code examples and implementations');
-    } else if (course.category === 'Business' || course.category === 'Economics') {
-      baseSegments[1].content += ' We\'ll analyze market trends, strategies, and business models.';
-      baseSegments[2].keyPoints.push('Market analysis and case studies');
-    } else if (course.category === 'Hindi') {
-      baseSegments[1].content = 'आइए अब मूल अवधारणाओं में गहराई से जाएं। यह हमारी समझ की नींव बनाता है। कृपया ध्यान दें क्योंकि हम प्रत्येक घटक को चरण दर चरण तोड़ते हैं।';
-      baseSegments[2].content = 'अब आइए देखें कि ये अवधारणाएं वास्तविक दुनिया के परिदृश्यों में कैसे लागू होती हैं। मैं आपके साथ कई उदाहरणों से गुजरूंगा ताकि आपकी समझ को मजबूत किया जा सके और व्यावहारिक कार्यान्वयन दिखाया जा सके।';
-      baseSegments[3].content = 'अब कुछ व्यावहारिक अभ्यास का समय आ गया है! आइए मिलकर कुछ समस्याओं पर काम करें। चैट सुविधा या माइक्रोफोन का उपयोग करके किसी भी समय प्रश्न पूछने में संकोच न करें।';
-      baseSegments[4].content = 'उत्कृष्ट काम! आइए आज हमने जो सीखा है उसका सारांश दें और चर्चा करें कि आगे बढ़ने के लिए इन अवधारणाओं को कैसे लागू किया जाए। याद रखें, अभ्यास परिपूर्ण बनाता है!';
-    }
-
-    return baseSegments;
-  };
-
-  const lessonSegments = generateLessonSegments();
-  const currentLessonSegment = lessonSegments[currentSegment];
-
-  useEffect(() => {
-    if (isLessonActive && currentSegment < lessonSegments.length) {
-      const segment = lessonSegments[currentSegment];
-      setCurrentSpeech(segment.content);
-      setWhiteboardContent(segment.keyPoints);
-
-      const timer = setTimeout(() => {
-        if (currentSegment < lessonSegments.length - 1) {
-          setCurrentSegment(prev => prev + 1);
-          setLessonProgress(((currentSegment + 1) / lessonSegments.length) * 100);
+  const handleSpeechEnd = () => {
+    if (isLessonActive && !hasShownMCQ && !showMCQ) {
+      setTimeout(() => {
+        const questions = generateMCQForSubject(course.category);
+        setMCQQuestions(questions);
+        setCurrentMCQIndex(0);
+        if (course.category === 'NEET') {
+          setCurrentSpeech("Let's try these questions to test your understanding so far.");
         } else {
-          setIsLessonActive(false);
-          setLessonProgress(100);
-          setCurrentSpeech('Great job completing this lesson! Feel free to ask any questions or review the material on the whiteboard.');
+          setCurrentSpeech("Let's try this question to test your understanding so far.");
         }
-      }, segment.duration);
+        setShowMCQ(true);
+        setHasShownMCQ(true);
+      }, 2000);
+    } else if (waitingForSpeech && !isFeedbackGiven) {
+      setIsFeedbackGiven(true);
+      setWaitingForSpeech(false);
+      setCurrentSpeech('');
 
-      return () => clearTimeout(timer);
+      if (course.category !== 'NEET') {
+        setIsQuizComplete(true);
+        setMCQAnswered(true);
+      } else if (isQuizComplete) {
+        setIsLessonActive(false);
+      }
     }
-  }, [isLessonActive, currentSegment]);
+  };
+
+  const handleMCQAnswer = (selectedAnswer: string, isCorrect: boolean) => {
+    if (course.category === 'NEET') {
+      const currentQuestion = mcqQuestions[currentMCQIndex];
+
+      if (selectedAnswer === '') {
+        setCurrentSpeech(`You haven't answered the question. The correct answer is ${currentQuestion.correctAnswer}. ${currentQuestion.explanation}`);
+      } else if (isCorrect) {
+        setCurrentSpeech("Excellent, that's the correct answer!");
+      } else {
+        setCurrentSpeech(`Not quite right. The correct answer is ${currentQuestion.correctAnswer}. ${currentQuestion.explanation}`);
+      }
+
+      setIsFeedbackGiven(false);
+      setWaitingForSpeech(true);
+      setMCQAnswered(true);
+    } else {
+      setTimeout(() => {
+        if (isCorrect) {
+          setCurrentSpeech("Excellent! That's the correct answer. Well done! You're showing great understanding. Let's continue with our lesson.");
+        } else {
+          const correctAnswer = mcqQuestions[currentMCQIndex]?.correctAnswer || '';
+          const explanation = mcqQuestions[currentMCQIndex]?.explanation || '';
+          setCurrentSpeech(`That's not quite right. The correct answer is ${correctAnswer}. ${explanation} Let's continue with our lesson.`);
+        }
+        setMCQAnswered(true);
+        setIsQuizComplete(true); // Set quiz complete for single questions
+      }, 500);
+    }
+  };
+
+  const handleNextMCQQuestion = () => {
+    if (currentMCQIndex < mcqQuestions.length - 1) {
+      setCurrentMCQIndex(prev => prev + 1);
+      setMCQAnswered(false);
+      setIsFeedbackGiven(false);
+      setCurrentSpeech('');
+    } else {
+      setIsQuizComplete(true);
+      // Don't close the popup, let the user click "Continue Learning"
+    }
+  };
+
+  const handleMCQClose = () => {
+    setShowMCQ(false);
+    setIsFeedbackGiven(false);
+    setCurrentSpeech('');
+  };
+
+  const getSubjectIntroduction = (category: string, lessonTitle: string) => {
+    const subjectIntroductions: Record<string, string> = {
+      'Mathematics': `Welcome to today's mathematics lesson. I'm Professor Diya, your AI mathematics instructor. Mathematics is the language of patterns and relationships, and today we'll explore how these concepts apply to real-world problem solving.`,
+      'Science': `Welcome to today's science lesson. I'm Professor Diya, your AI science instructor. Science helps us understand the natural world through observation and experimentation, and today we'll discover how these principles work in practice.`,
+      'Hindi': `नमस्ते! आज के हिंदी पाठ "${lessonTitle}" में आपका स्वागत है। मैं प्रोफेसर युगा हूं, आपकी AI हिंदी शिक्षिका। आज हम हिंदी भाषा की सुंदरता और इसकी सांस्कृतिक महत्व को समझेंगे।`,
+      'English': `Welcome to today's English lesson. I'm Professor Diya, your AI English instructor. Language is the foundation of communication and expression, and today we'll explore how to use English effectively in various contexts.`,
+      'Physics': `Welcome to today's physics lesson. I'm Professor Diya, your AI physics instructor. Physics reveals the fundamental laws governing our universe, from the smallest particles to the largest galaxies.`,
+      'Chemistry': `Welcome to today's chemistry lesson. I'm Professor Diya, your AI chemistry instructor. Chemistry explores the composition and behavior of matter, helping us understand reactions that shape our world.`,
+      'Biology': `Welcome to today's biology lesson. I'm Professor Diya, your AI biology instructor. Biology studies living organisms and their interactions, revealing the fascinating complexity of life.`,
+      'Social Science': `Welcome to today's social science lesson. I'm Professor Diya, your AI social science instructor. Social science helps us understand human societies and our place in the world, and today we'll explore important historical and cultural concepts.`,
+      'NEET': `Welcome to today's NEET preparation session. I'm Professor Diya, your AI mentor. We'll connect core ideas from Physics, Chemistry, and Biology, focus on problem-solving strategies, and build exam-ready confidence for "${lessonTitle}".`
+    };
+
+    return subjectIntroductions[category] || subjectIntroductions['Mathematics'];
+  };
+
+  // Lesson segments
+  const lessonSegments = [
+    {
+      title: "Introduction",
+      content: getSubjectIntroduction(course.category, lesson.title),
+      duration: 30,
+    },
+    {
+      title: "Core Concepts",
+      content: "Let's dive into the fundamental concepts that will build your understanding and prepare you for more advanced topics in this subject.",
+      duration: 45,
+    },
+    {
+      title: "Practical Examples",
+      content: "Now I'll show you real-world applications of these concepts with practical examples that demonstrate their importance.",
+      duration: 40,
+    },
+    {
+      title: "Advanced Applications",
+      content: "Let's explore more sophisticated applications and see how these concepts connect to other areas of study.",
+      duration: 35,
+    },
+    {
+      title: "Summary & Next Steps",
+      content: "Let's review what we've learned today and discuss how you can continue building on these foundations.",
+      duration: 25,
+    }
+  ];
+
+  const currentLessonSegment = lessonSegments[currentSegment];
 
   const handleStartLesson = () => {
     setIsLessonActive(true);
-    setCurrentSegment(0);
-    setLessonProgress(0);
+    setLessonProgress(5);
+    setCurrentSpeech(currentLessonSegment.content);
+
+    setWhiteboardContent([
+      `${course.title} - ${lesson.title}`,
+      "Key Learning Objectives:",
+      "• Understand fundamental principles",
+      "• Apply concepts to real scenarios",
+      "• Develop critical thinking skills",
+      "• Connect to practical applications"
+    ]);
   };
 
   const handlePauseLesson = () => {
     setIsLessonActive(false);
-    // Stop any ongoing speech
-    if ('speechSynthesis' in window) {
-      speechSynthesis.cancel();
-    }
+    setCurrentSpeech('');
   };
 
-  const handleQuestionAsked = (question: string) => {
-    // Pause lesson when question is asked
-    setIsLessonActive(false);
-    setCurrentSpeech(`Great question! Let me address that: "${question}". This is an important point that relates to our current topic.`);
-    
-    // Resume lesson after answering
-    setTimeout(() => {
-      if (currentSegment < lessonSegments.length) {
-        setIsLessonActive(true);
-      }
-    }, 5000);
+  // Handle questions asked through the Ask Doubt button
+  const handleQuestionAsked = (response: string) => {
+    // Use the Groq response directly
+    setCurrentSpeech(response);
+  };
+
+  // Handle Ask Doubt button click
+  const handleAskDoubt = () => {
+    if (avatarRef.current) {
+      // Call the startRecording method from RealisticAvatar
+      avatarRef.current.startRecording();
+      setIsRecording(true);
+      
+      // Set a timeout to stop recording after 5 seconds
+      setTimeout(() => {
+        setIsRecording(false);
+      }, 5000);
+    }
   };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black z-[9999] flex flex-col overflow-hidden">
-      {/* Header Bar - Fixed at top */}
+      {/* Header Bar */}
       <div className="bg-gradient-to-r from-slate-900 via-purple-900 to-indigo-900 text-white p-4 flex items-center justify-between flex-shrink-0 z-10">
         <div className="flex items-center space-x-4">
           <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-lg flex items-center justify-center">
@@ -286,7 +404,7 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
             <p className="text-purple-200 text-sm truncate">{lesson.title}</p>
           </div>
         </div>
-        
+
         <div className="flex items-center space-x-4">
           <div className="hidden sm:flex items-center space-x-2 text-sm">
             <Users className="w-4 h-4" />
@@ -305,29 +423,29 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
         </div>
       </div>
 
-      {/* Main Classroom Interface - Scrollable content */}
+      {/* Main Classroom Interface */}
       <div className="flex-1 flex flex-col lg:flex-row min-h-0 overflow-y-auto">
-        {/* Left Side - AI Avatar and Controls */}
+        {/* Left: Avatar + Controls */}
         <div className="flex-1 bg-gradient-to-br from-slate-800 via-purple-900 to-indigo-900 relative overflow-hidden min-h-[60vh] lg:min-h-0">
-          {/* Ambient Background Effects */}
           <div className="absolute inset-0 opacity-20">
             <div className="absolute top-10 left-10 w-32 h-32 bg-purple-500 rounded-full blur-3xl animate-pulse"></div>
             <div className="absolute bottom-20 right-20 w-40 h-40 bg-cyan-500 rounded-full blur-3xl animate-pulse delay-1000"></div>
             <div className="absolute top-1/2 left-1/3 w-24 h-24 bg-indigo-500 rounded-full blur-2xl animate-pulse delay-500"></div>
           </div>
 
-          {/* AI Avatar Section - Centered with proper spacing */}
           <div className="relative z-10 h-full flex flex-col items-center justify-center p-4 lg:p-8 pt-16 lg:pt-8">
             <RealisticAvatar
+              ref={avatarRef}
               gender={avatarGender}
               isTeaching={isLessonActive}
               currentSpeech={currentSpeech}
               emotion={isLessonActive ? 'teaching' : 'friendly'}
               soundEnabled={soundEnabled}
               onQuestionAsked={handleQuestionAsked}
+              onSpeechEnd={handleSpeechEnd}
+              onOpenVoiceAssistant={() => setIsVoiceAssistantOpen(true)}
             />
 
-            {/* Lesson Progress - Positioned with proper spacing */}
             {lessonProgress > 0 && (
               <div className="absolute bottom-28 lg:bottom-32 left-1/2 transform -translate-x-1/2 w-full max-w-xs px-4">
                 <div className="bg-black bg-opacity-50 backdrop-blur-lg rounded-2xl p-4 text-white">
@@ -342,7 +460,7 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
                     />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm text-purple-200 truncate">{currentLessonSegment?.title}</p>
+                    <p className="text-sm text-purple-200 truncate">{lessonSegments[currentSegment]?.title}</p>
                     <p className="text-xs text-purple-300 mt-1">
                       Segment {currentSegment + 1} of {lessonSegments.length}
                     </p>
@@ -351,53 +469,62 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
               </div>
             )}
 
-            {/* Control Panel - Fixed at bottom with proper spacing */}
-            <div className="absolute bottom-4 lg:bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-md px-4">
-              <div className="bg-black bg-opacity-50 backdrop-blur-lg rounded-2xl p-3 flex items-center justify-center space-x-3 lg:space-x-4">
+            <div className="absolute bottom-4 lg:bottom-8 left-1/2 transform -translate-x-1/2">
+              <div className="bg-black bg-opacity-50 backdrop-blur-lg rounded-2xl px-3 py-2 flex items-center justify-center space-x-2 lg:space-x-3">
                 <button
                   onClick={isLessonActive ? handlePauseLesson : handleStartLesson}
                   className="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform"
+                  title={isLessonActive ? 'Pause Lesson' : 'Start Lesson'}
                 >
                   {isLessonActive ? <Pause className="w-5 h-5 lg:w-6 lg:h-6" /> : <Play className="w-5 h-5 lg:w-6 lg:h-6" />}
                 </button>
-                
+
+                <button
+                  onClick={handleAskDoubt}
+                  className={`h-10 lg:h-12 rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform px-4 ${
+                    isRecording 
+                      ? 'bg-gradient-to-r from-red-600 to-red-700 animate-pulse' 
+                      : 'bg-gradient-to-r from-red-500 to-red-600'
+                  }`}
+                  title="Ask Doubt"
+                >
+                  <div className="flex items-center space-x-2">
+                    <HelpCircle className="w-5 h-5 lg:w-6 lg:h-6" />
+                    <span className="text-sm font-medium hidden lg:inline">
+                      {isRecording ? 'Recording...' : 'Ask Doubt'}
+                    </span>
+                  </div>
+                </button>
+
                 <button
                   onClick={() => setSoundEnabled(!soundEnabled)}
-                  className="w-8 h-8 lg:w-10 lg:h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white hover:bg-opacity-30 transition-colors"
+                  className="w-10 h-10 lg:w-12 lg:h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white hover:bg-opacity-30 transition-colors"
+                  title={soundEnabled ? 'Mute Sound' : 'Unmute Sound'}
                 >
-                  {soundEnabled ? <Volume2 className="w-4 h-4 lg:w-5 lg:h-5" /> : <VolumeX className="w-4 h-4 lg:w-5 lg:h-5" />}
+                  {soundEnabled ? <Volume2 className="w-5 h-5 lg:w-6 lg:h-6" /> : <VolumeX className="w-5 h-5 lg:w-6 lg:h-6" />}
                 </button>
-                
-                <button
-                  onClick={() => setIsListening(!isListening)}
-                  className={`w-8 h-8 lg:w-10 lg:h-10 rounded-full flex items-center justify-center text-white transition-colors ${
-                    isListening ? 'bg-red-500 animate-pulse' : 'bg-white bg-opacity-20 hover:bg-opacity-30'
-                  }`}
-                >
-                  {isListening ? <MicOff className="w-4 h-4 lg:w-5 lg:h-5" /> : <Mic className="w-4 h-4 lg:w-5 lg:h-5" />}
-                </button>
-                
+
                 <button
                   onClick={() => setIsChatOpen(!isChatOpen)}
-                  className={`w-8 h-8 lg:w-10 lg:h-10 rounded-full flex items-center justify-center text-white transition-colors ${
+                  className={`w-10 h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center text-white transition-colors ${
                     isChatOpen ? 'bg-green-500' : 'bg-white bg-opacity-20 hover:bg-opacity-30'
                   }`}
+                  title="Open Chat"
                 >
-                  <MessageCircle className="w-4 h-4 lg:w-5 lg:h-5" />
+                  <MessageCircle className="w-5 h-5 lg:w-6 lg:h-6" />
                 </button>
-                
+
                 <button
                   onClick={() => setAvatarGender(avatarGender === 'male' ? 'female' : 'male')}
-                  className="w-8 h-8 lg:w-10 lg:h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white hover:bg-opacity-30 transition-colors"
+                  className="w-10 h-10 lg:w-12 lg:h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white hover:bg-opacity-30 transition-colors"
                   title={`Switch to ${avatarGender === 'male' ? 'female' : 'male'} avatar`}
                 >
-                  <Settings className="w-4 h-4 lg:w-5 lg:h-5" />
+                  <Settings className="w-5 h-5 lg:w-6 lg:h-6" />
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Real-time Chat Overlay */}
           {isChatOpen && (
             <div className="absolute top-16 lg:top-4 left-4 right-4 lg:left-4 lg:right-auto lg:w-80 h-96 z-20">
               <RealTimeChat
@@ -408,28 +535,57 @@ export const AIClassroom: React.FC<AIClassroomProps> = ({ course, lesson, isOpen
           )}
         </div>
 
-        {/* Right Side - Dynamic Smart Whiteboard */}
+        {/* Right: Whiteboard */}
         <div className="w-full lg:w-96 bg-white border-t lg:border-l border-gray-200 flex flex-col">
           <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 flex items-center justify-between flex-shrink-0">
             <h2 className="font-bold">Smart Whiteboard</h2>
             <div className="flex items-center space-x-2">
               {isLessonActive && (
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              )}
+              )
+              }
               <button className="text-white hover:text-gray-200">
                 <Download className="w-5 h-5" />
               </button>
             </div>
           </div>
-          
+
           <DynamicWhiteboard
             content={whiteboardContent}
             lessonTitle={lesson.title}
-            currentSegment={currentLessonSegment?.title || ''}
+            currentSegment={lessonSegments[currentSegment]?.title || ''}
             isActive={isLessonActive}
           />
         </div>
       </div>
+
+      {/* Voice Assistant Component */}
+      <VoiceAssistant
+        isOpen={isVoiceAssistantOpen}
+        onClose={() => setIsVoiceAssistantOpen(false)}
+        courseCategory={normalizeCategory(course.category)}
+        onQuestionAsked={handleQuestionAsked}
+      />
+
+      {/* MCQ Popup */}
+      <MCQPopup
+        isOpen={showMCQ}
+        question={mcqQuestions[currentMCQIndex]}
+        onAnswerSubmit={handleMCQAnswer}
+        onClose={handleMCQClose}
+        onNextQuestion={handleNextMCQQuestion}
+        onContinueLearning={() => {
+          setIsLessonActive(true); // Ensure avatar is in teaching mode
+          setTimeout(() => {
+            setCurrentSpeech("How were the questions? If you have any doubts, click the 'Ask Doubt' button. I'm here to help and answer all your questions.");
+          }, 100); // Small delay to ensure state update
+        }}
+        subject={course.category}
+        currentQuestionIndex={currentMCQIndex}
+        totalQuestions={mcqQuestions.length}
+        isAnswered={mcqAnswered}
+        isQuizComplete={isQuizComplete}
+      />
     </div>
   );
 };
