@@ -112,7 +112,7 @@ function MainApp() {
   }
 
   // Show onboarding flow for new/unauthenticated users
-  if (showOnboarding && !isAuthenticated) {
+  if (showOnboarding && isAuthenticated) {
     return <OnboardingFlow onComplete={() => setShowOnboarding(false)} />;
   }
 
@@ -1620,3 +1620,4 @@ function App() {
 }
 
 export default App;
+
