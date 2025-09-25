@@ -1,15 +1,10 @@
 import axios from "axios";
 
-// Determine base URL based on environment
-const getBaseURL = () => {
-  // Use Render URL for production, localhost for development
-  return process.env.NODE_ENV === 'production' 
-    ? "https://yuga-ai-backend-mvp.onrender.com/api"
-    : "http://localhost:5000/api";
-};
+// Use your Render backend URL
+const API_BASE_URL = "https://yuga-ai-backend-mvp.onrender.com/api";
 
 export const api = axios.create({
-  baseURL: getBaseURL(),
+  baseURL: API_BASE_URL,
   withCredentials: true,
   timeout: 30000,
   headers: {
@@ -24,7 +19,6 @@ export const apiRequest = async (endpoint: string, method: string = "GET", body?
       url: endpoint,
       method,
       data: body,
-      withCredentials: true,
     });
     
     return {
@@ -51,36 +45,33 @@ export const apiRequest = async (endpoint: string, method: string = "GET", body?
   }
 };
 
-export const API_BASE_URL = getBaseURL();
+export { API_BASE_URL };
 
-// Optional: Add request interceptor for logging
+// Add interceptors for better debugging
 api.interceptors.request.use(
   (config) => {
-    console.log(`API Request: ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
+    console.log(`🔄 Making API request to: ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
     return config;
   },
   (error) => {
-    console.error('API Request Error:', error);
+    console.error('❌ API Request Error:', error);
     return Promise.reject(error);
   }
 );
 
-// Optional: Add response interceptor for better error handling
 api.interceptors.response.use(
   (response) => {
-    console.log(`API Response: ${response.status} ${response.config.url}`);
+    console.log(`✅ API Response received: ${response.status} ${response.config.url}`);
     return response;
   },
   (error) => {
-    console.error('API Response Error:', error);
+    console.error('❌ API Response Error:', error);
     
-    // Handle specific error cases
-    if (error.code === 'ECONNREFUSED') {
-      error.message = 'Unable to connect to server. Please check your connection.';
-    } else if (error.code === 'NETWORK_ERROR') {
-      error.message = 'Network error. Please check your internet connection.';
+    // Provide better error messages
+    if (error.code === 'ECONNREFUSED' || error.message === 'Network Error') {
+      error.message = 'Cannot connect to backend server. Please check if the server is running.';
     } else if (error.response?.status === 502) {
-      error.message = 'Server is temporarily unavailable. Please try again later.';
+      error.message = 'Backend server is temporarily unavailable. Please try again later.';
     }
     
     return Promise.reject(error);
