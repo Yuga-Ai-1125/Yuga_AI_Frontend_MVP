@@ -44,7 +44,7 @@ import { AIClassroom } from "./components/course/AIClassroom";
 import { DoubtSolver } from "./components/doubts/DoubtSolver";
 import { AIAvatar } from "./components/AIAvatar";
 import { Footer } from "./components/Footer";
-import { Navigation } from "./components/Navigation";
+import { Navigation } from "./components/layout/Navigation";
 import {
   mockCourses,
   mockUserProgress,
@@ -175,6 +175,19 @@ function MainApp() {
       course.tags.some((tag) => tag.toLowerCase().includes(searchTerm))
     );
   });
+
+  // Helper function to get subject color for UI elements
+  const getSubjectColor = (subject: string) => {
+    const colors: Record<string, string> = {
+      Mathematics: "bg-purple-500",
+      Science: "bg-green-500",
+      English: "bg-blue-500",
+      Hindi: "bg-yellow-500",
+      "Social Science": "bg-red-500",
+      "Computer Applications": "bg-indigo-500",
+    };
+    return colors[subject] || "bg-gray-500";
+  };
 
   // Main content renderer based on active view and authentication status
   const renderContent = () => {
@@ -874,7 +887,7 @@ function MainApp() {
                     <Circle className="w-2 h-2 text-amber-600 mr-2" />
                     <span className="text-sm">Urban Planner</span>
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex itemsCenter">
                     <Circle className="w-2 h-2 text-amber-600 mr-2" />
                     <span className="text-sm">Economist</span>
                   </div>
@@ -1447,7 +1460,7 @@ function MainApp() {
                 </div>
               </div>
               <div className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justifyBetween">
                   <div>
                     <p className="text-gray-600 text-sm">Learning Streak</p>
                     <p className="text-2xl font-bold text-gray-900">
@@ -1481,19 +1494,6 @@ function MainApp() {
           </div>
         );
     }
-  };
-
-  // Helper function to get subject color for UI elements
-  const getSubjectColor = (subject: string) => {
-    const colors: Record<string, string> = {
-      Mathematics: "bg-purple-500",
-      Science: "bg-green-500",
-      English: "bg-blue-500",
-      Hindi: "bg-yellow-500",
-      "Social Science": "bg-red-500",
-      "Computer Applications": "bg-indigo-500",
-    };
-    return colors[subject] || "bg-gray-500";
   };
 
   return (
@@ -1582,38 +1582,40 @@ function MainApp() {
 // Main App component with routing and authentication provider
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<MainApp />} />
-          <Route
-            path="/reset-password/:token"
-            element={<ResetPasswordPage />}
-          />
+    <ErrorBoundary>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<MainApp />} />
+            <Route
+              path="/reset-password/:token"
+              element={<ResetPasswordPage />}
+            />
 
-          {/* Company pages */}
-          <Route path="/about" element={<AboutUs />} />
-          <Route path="/mission" element={<OurMission />} />
-          <Route path="/careers" element={<Careers />} />
-          <Route path="/press" element={<Press />} />
-          
-          {/* Support pages */}
-          <Route path="/help" element={<HelpCenter />} />
-          <Route path="/contact" element={<ContactUs />} />
-          <Route path="/status" element={<SystemStatus />} />
-          <Route path="/community" element={<Community />} />
-          
-          {/* Legal pages */}
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/terms" element={<TermsOfService />} />
-          <Route path="/cookies" element={<CookiePolicy />} />
-          <Route path="/gdpr" element={<GDPR />} />
-          
-          {/* Catch-all route redirects to home */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Router>
-    </AuthProvider>
+            {/* Company pages */}
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/mission" element={<OurMission />} />
+            <Route path="/careers" element={<Careers />} />
+            <Route path="/press" element={<Press />} />
+            
+            {/* Support pages */}
+            <Route path="/help" element={<HelpCenter />} />
+            <Route path="/contact" element={<ContactUs />} />
+            <Route path="/status" element={<SystemStatus />} />
+            <Route path="/community" element={<Community />} />
+            
+            {/* Legal pages */}
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/cookies" element={<CookiePolicy />} />
+            <Route path="/gdpr" element={<GDPR />} />
+            
+            {/* Catch-all route redirects to home */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
