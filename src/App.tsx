@@ -81,7 +81,7 @@ type ActiveView =
 // Main application component that handles routing and state management
 function MainApp() {
   // Authentication state and user information
-  const { user, !isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   
   // State management for various UI components and features
   const [activeView, setActiveView] = useState<ActiveView>("dashboard");
@@ -1620,5 +1620,6 @@ function App() {
 }
 
 export default App;
+
 
 
